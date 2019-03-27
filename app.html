@@ -1,5 +1,7 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta charset="utf-8"/>
     <title>C++ Debugging Exercise</title>
     <style>
       * { box-sizing: border-box; margin: auto }
@@ -79,6 +81,8 @@
           lineNumbers: true,
           matchBrackets: true
         });
+        var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
+        CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
       </script>
     </div>
 
