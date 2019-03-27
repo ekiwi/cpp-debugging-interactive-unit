@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <title>C++ Debugging Exercise</title>
+    <style>
+      * { box-sizing: border-box; margin: auto }
+      body { width: 1000px;  }
+      h1 { padding: 0; margin: 0; }
+      header { width: auto; margin-top: 20px; padding-bottom: 10px; }
+      .row { display: table; margin-bottom: 10px; padding-bottom: 10px;
+             border-bottom: 1px solid grey; width: 1000px }
+      .row section { float: left; height: auto }
+      .row nav { float: left; height: auto }
+      /* navigation */
+      nav { width: 40%; padding-left: 10px; }
+      nav a { display: block; color: #333; padding-bottom: 5px; }
+      nav a.active {color: black; font-weight: bold; }
+      /* instructions */
+      section#instruction { width: 60%; }
+      section h1 { font-size: 15pt; margin-bottom: 10px }
+      /*  */
+      .button { display: block; margin-top: 10px; border: 1px solid black; }
+      .button:disabled { border-color: grey; }
+      #student-input { width: 40%; }
+      #student-input textarea { width: 90%; height: 100px; display: block }
+      /*  */
+      #student-responses { width: 60%; }
+      #student-responses div { padding: 5px; border: 1px solid #666;
+                               margin-bottom: 5px; border-radius: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Part Name</h1>
+    </header>
+    <div class="row">
+    <nav>
+      <a class="active" href="#">A) What should the program do?</a>
+      <a href="#">B) What are potential bugs?</a>
+      <a href="#">C) Waht would you do to debug?</a>
+      <a href="#">D) Run the program</a>
+      <a href="#">E) Trey Debug Technique 1</a>
+      <a href="#">F) Fix Program</a>
+    </nav>
+    <section id="instruction">
+      <h1>Instructions</h1>
+      Please take a moment to read through the source code of the program
+      provided below. What do you think is the program <b>intended</b> to do?
+      Put your thoughts into the text box below.
+    </section>
+    </div>
+    <div class="row">
+      <section id="student-input">
+      <h1>What do you think the program output will be?</h1>
+      <form action="#">
+        <textarea>Enter your idea here....</textarea>
+        <input class="button" type="submit" value="Submit" />
+      </form>
+      </section>
+      <section id="student-responses">
+      <h1>Other students' responses:</h1>
+      <div>"It should do ..."</div>
+      <div>"The program will print out ..."</div>
+      <div>"I expect to see ..."</div>
+      <form action="#">
+        <input class="button" type="submit" value="Next" disabled="true" />
+      </form>
+      </section>
+    </div>
+    <div class="row">
+
+    </div>
+
+
+
+  </body>
+</html>
