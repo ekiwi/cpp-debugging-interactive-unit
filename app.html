@@ -38,7 +38,10 @@
                                     border-top: 2px solid #0af;
                                     border-bottom: 1px solid #fff }
       .tabs div.content { border-top: 1px solid #abc; margin-top: -1px; }
-
+      /* compiler/program output */
+      div.output { height: 250px; padding: 5px; padding-left: 15px;
+                   background: black; color: white;
+                   font-family: monospace; font-size: 12pt; }
     </style>
     <!-- codemirror -->
     <script src="ext/codemirror-5.45.0/lib/codemirror.js"></script>
@@ -84,18 +87,31 @@
       </section>
     </div>
 
-   <div class="row tabs">
-    <input id="tab1" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
-    <label for="tab1">main.c</label>
-    <input id="tab2" type="radio" name="tabs" onchange="tab(this)"/>
-    <label for="tab2">Makefile</label>
-    <div id="content1" class="content">
-      <textarea id="c-code">/* demo code */int x = 10; void test(int a) { a = 10; }</textarea>
+    <div class="row tabs">
+      <input id="tab1" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
+      <label for="tab1">main.c</label>
+      <input id="tab2" type="radio" name="tabs" onchange="tab(this)"/>
+      <label for="tab2">Makefile</label>
+      <div id="content1" class="content">
+        <textarea id="c-code">/* demo code */int x = 10; void test(int a) { a = 10; }</textarea>
+      </div>
+      <div id="content2" class="content">
+        <textarea id="makefile">test: test.c</textarea>
+      </div>
     </div>
-    <div id="content2" class="content">
-      <textarea id="makefile">test: test.c</textarea>
+
+    <div class="row tabs">
+      <input id="tab3" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
+      <label for="tab3">Compiler Output</label>
+      <input id="tab4" type="radio" name="tabs" onchange="tab(this)"/>
+      <label for="tab4">Program Output</label>
+      <div id="content3" class="content">
+        <div id="compiler-out" class="output">compiling stuff...</div>
+      </div>
+      <div id="content4" class="content">
+        <div id="program-out" class="output">hello world.....</div>
+      </div>
     </div>
-   </div>
 
 
   <!-- checkout https://codemirror.net/mode/clike/ -->
@@ -129,6 +145,7 @@
     });
     // display main
     tab(document.getElementById("tab1"));
+    tab(document.getElementById("tab3"));
 
   </script>
   </body>
