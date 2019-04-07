@@ -30,19 +30,14 @@
                                margin-bottom: 5px; border-radius: 12px; }
       /* tabs (inspired by https://codepen.io/oknoblich/pen/tfjFl) */
       .tabs input { display: none; }
-      .tabs label { display: inline-block; padding: 15px 25px;
+      .tabs label { display: inline-block; padding: 7px 25px;
                     text-align: center; color: #abc;
                     border: 1px solid transparent; }
       .tabs label:hover { color: #789; cursor: pointer; }
       .tabs input:checked + label { color: #0af; border: 1px solid #abc;
                                     border-top: 2px solid #0af;
                                     border-bottom: 1px solid #fff }
-      #tab1:checked ~ #content1,
-      #tab2:checked ~ #content2,
-      #tab3:checked ~ #content3,
-      #tab4:checked ~ #content4 {
-        display: block;
-      }
+      .tabs div.content { border-top: 1px solid #abc; margin-top: -1px; }
 
     </style>
     <!-- codemirror -->
@@ -90,41 +85,51 @@
     </div>
 
    <div class="row tabs">
-
-    <input id="tab1" type="radio" name="tabs" checked="true" />
-    <label for="tab1">Codepen</label>
-
-    <input id="tab2" type="radio" name="tabs" />
-    <label for="tab2">Dribbble</label>
-
-    <input id="tab3" type="radio" name="tabs" />
-    <label for="tab3">Stack Overflow</label>
-
-    <input id="tab4" type="radio" name="tabs" />
-    <label for="tab4">Bitbucket</label>
-
-    <div id="content1">Content 1</div>
-    <div id="content2">Content 2</div>
-    <div id="content3">Content 3</div>
-    <div id="content4">Content 4</div>
-
-   </div>
-
-    <div class="row">
+    <input id="tab1" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
+    <label for="tab1">main.c</label>
+    <input id="tab2" type="radio" name="tabs" onchange="tab(this)"/>
+    <label for="tab2">Makefile</label>
+    <div id="content1" class="content">
       <textarea id="c-code">/* demo code */int x = 10; void test(int a) { a = 10; }</textarea>
     </div>
+    <div id="content2" class="content">
+      <textarea id="makefile">test: test.c</textarea>
+    </div>
+   </div>
 
 
   <!-- checkout https://codemirror.net/mode/clike/ -->
   <script>
     var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("c-code"), {
-      value: "/* demo code */int x = 10; void test(int a) { a = 10; }\n",
       mode:  "text/x-c++src",
       lineNumbers: true,
       matchBrackets: true
     });
     var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
     CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
+    var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("makefile"), {
+      mode:  "text/x-cmake",
+      lineNumbers: true,
+      matchBrackets: true
+    });
+
+    // tab switch function
+    function tab(el) {
+      var name = "content" + el.id.slice(-1)
+      el.parentElement.childNodes.forEach(function(node){
+        if(node.tagName == "DIV") {
+          if(node.id == name) { node.style.display = "block"; }
+          else { node.style.display = "none"; }
+        }
+      });
+    }
+    // hide all tabs
+    document.querySelectorAll(".tabs div.content").forEach(function(node) {
+      node.style.display = "none";
+    });
+    // display main
+    tab(document.getElementById("tab1"));
+
   </script>
   </body>
 </html>
