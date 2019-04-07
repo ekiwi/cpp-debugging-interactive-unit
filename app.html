@@ -88,10 +88,12 @@
     </div>
 
     <div class="row tabs">
+      <form>
       <input id="tab1" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
       <label for="tab1">main.c</label>
       <input id="tab2" type="radio" name="tabs" onchange="tab(this)"/>
       <label for="tab2">Makefile</label>
+      </form>
       <div id="content1" class="content">
         <textarea id="c-code">/* demo code */int x = 10; void test(int a) { a = 10; }</textarea>
       </div>
@@ -101,10 +103,12 @@
     </div>
 
     <div class="row tabs">
+      <form>
       <input id="tab3" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
       <label for="tab3">Compiler Output</label>
       <input id="tab4" type="radio" name="tabs" onchange="tab(this)"/>
       <label for="tab4">Program Output</label>
+      </form>
       <div id="content3" class="content">
         <div id="compiler-out" class="output">compiling stuff...</div>
       </div>
@@ -132,7 +136,8 @@
     // tab switch function
     function tab(el) {
       var name = "content" + el.id.slice(-1)
-      el.parentElement.childNodes.forEach(function(node){
+      var row = el.parentElement.parentElement;
+      row.childNodes.forEach(function(node){
         if(node.tagName == "DIV") {
           if(node.id == name) { node.style.display = "block"; }
           else { node.style.display = "none"; }
