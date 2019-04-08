@@ -181,7 +181,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 	def parse_path(self):
 		app = self.server.app
 		pp = self.path.split('/')[1:]
-		if 5 > len(pp) > 2 and pp[0] in app.students:
+		if len(pp) in {1,3,4} and pp[0] in app.students:
+			if len(pp) == 1:
+				pp += list(app.start)
 			if len(pp) == 3:
 				pp += ['load']
 			student_id, p0, p1, cmd = pp
