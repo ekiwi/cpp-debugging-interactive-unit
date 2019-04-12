@@ -50,22 +50,17 @@
   </head>
   <body>
     <header>
-      <h1>Part Name</h1>
+      <h1>{{ part.name }}</h1>
     </header>
     <div class="row">
     <nav>
-      <a class="active" href="#">A) What should the program do?</a>
-      <a href="#">B) What are potential bugs?</a>
-      <a href="#">C) Waht would you do to debug?</a>
-      <a href="#">D) Run the program</a>
-      <a href="#">E) Trey Debug Technique 1</a>
-      <a href="#">F) Fix Program</a>
+    {% for s in part.steps %}
+      <a class="{{ "active" if s[1] == step.uid else "" }}" href="#">{{ s[0] }}</a>
+    {% endfor %}
     </nav>
     <section id="instruction">
       <h1>Instructions</h1>
-      Please take a moment to read through the source code of the program
-      provided below. What do you think is the program <b>intended</b> to do?
-      Put your thoughts into the text box below.
+      {{ step.instructions }}
     </section>
     </div>
     <div class="row">
@@ -95,10 +90,10 @@
       <label for="tab2">Makefile</label>
       </form>
       <div id="content1" class="content">
-        <textarea id="c-code">/* demo code */int x = 10; void test(int a) { a = 10; }</textarea>
+        <textarea id="c-code">{{ part.program }}</textarea>
       </div>
       <div id="content2" class="content">
-        <textarea id="makefile">test: test.c</textarea>
+        <textarea id="makefile">{{ part.makefile }}</textarea>
       </div>
     </div>
 

@@ -6,9 +6,10 @@
 import json, os, sys
 import http.server
 from urllib.parse import urlparse
-from typing import List
+from typing import List, Optional
 from functools import reduce, total_ordering
 import operator
+from jinja2 import Template
 
 def assert_uids(items):
 	uids = {s.uid for s in items}
@@ -20,6 +21,9 @@ class Step:
 		self.uid = uid
 		self.name = name
 		self.instructions = instructions
+
+	def to_dict(self) -> dict:
+		return {'uid': self.uid, 'instructions': self.instructions}
 
 class QuestionStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str, question: str):
@@ -45,6 +49,10 @@ class Part:
 		self.makefile = makefile
 
 		self.steps = {s.uid: s for s in steps}
+
+	def to_dict(self) -> dict:
+		return {'uid': self.uid, 'name': self.name, 'program': self.program, 'makefile': self.makefile,
+				'steps': [(s.name, s.uid) for s in self.steps.values()] }
 
 class Student:
 	def __init__(self, uid, progress, answers):
@@ -107,7 +115,7 @@ class App:
 		uids = reduce(operator.add, ([(p.uid, s.uid) for s in p.steps.values()] for p in parts))
 		self.start = uids[0]
 		self.uid_progress = {uid: ii for ii, uid in enumerate(uids)}
-		self.app_html = None
+		self.app_html: Optional[Template] = None
 		# command list
 		self.cmds = {'load': self.load_step, 'run': self.run, 'answer': self.answer }
 		# student directory
@@ -117,7 +125,7 @@ class App:
 	def load_assets(self, app_html):
 		assert self.app_html is None
 		with open(app_html) as ff:
-			self.app_html = ff.read()
+			self.app_html = Template(ff.read())
 
 	def load_students(self, student_dir):
 		assert os.path.isdir(student_dir)
@@ -156,7 +164,7 @@ class App:
 		return self.cmds[cmd](*ret.dat, content)
 
 	def load_step(self, student, part, step, _):
-		return Success(self.app_html)
+		return Success(self.app_html.render({'part': part.to_dict(), 'step': step.to_dict()}))
 
 	def run(self, student, part, step, sources):
 		can_run = isinstance(step, RunStep) or isinstance(step, ModifyStep)
