@@ -6,9 +6,11 @@
 from server import *
 
 p1 = """
+#include<iostream>
+
 int main(int argc, const char* argv[]) {
     int buffer[10];
-    itn x;
+    int x;
     for(int ii = 1; ii <= 10; ii += 1) {
         buffer[ii] = ii;
     }
@@ -22,6 +24,8 @@ program: main.c
 """
 
 p2 = """
+#include<iostream>
+
 struct Counter {
     int* count;
     Counter() {}
@@ -37,6 +41,8 @@ int main(int argc, const char* argv[]) {
 """
 
 p3 = """
+#include<iostream>
+
 struct particle_t { int x; int y; };
 void reset_particle(particle_t* part_ptr) {
     particle_t part = *part_ptr;
@@ -51,6 +57,8 @@ reset_particle(&part);
 """
 
 p4 = """
+#include<iostream>
+
 struct particle_t { int x; int y; };
 particle_t* make_particle() {
     particle_t part = { -10, 10 };
@@ -67,6 +75,7 @@ app_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 if __name__ == '__main__':
 	address = ("localhost", 12345)
 	student_dir = 'students'
+	compiler_dir = 'compiler'
 	code_mirror = 'codemirror-5.45.0'
 	lib_dirs = [os.path.join('ext', code_mirror, dd) for dd in ['lib', 'mode/clike']]
 	app = App([
@@ -82,6 +91,6 @@ if __name__ == '__main__':
 		])
 
 
-	], student_dir=student_dir)
+	], student_dir=student_dir, compiler_dir=compiler_dir)
 	serv = Server(address=address, app=app, student_dir=student_dir, lib_dirs=lib_dirs, app_dir=app_dir)
 	serv.serve_forever()

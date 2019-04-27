@@ -10,6 +10,7 @@ from typing import List, Optional
 from functools import reduce, total_ordering
 import operator
 from jinja2 import Template
+from compiler import Compiler
 
 def assert_uids(items):
 	uids = {s.uid for s in items}
@@ -56,6 +57,7 @@ class Part:
 
 class Student:
 	def __init__(self, uid, progress, answers):
+		assert isinstance(progress, int)
 		self.uid = uid
 		self.progress = progress
 		self.answers = answers
@@ -86,6 +88,7 @@ class Success:
 	def __str__(self):
 		return f"Success({self.dat})"
 
+
 def is_error(e): return isinstance(e, Error)
 
 @total_ordering
@@ -107,7 +110,7 @@ class PathId:
 		return self.progress < other.progress
 
 class App:
-	def __init__(self, parts: List[Part], student_dir):
+	def __init__(self, parts: List[Part], student_dir, compiler_dir):
 		assert_uids(parts)
 		self.parts = {p.uid: p for p in parts}
 		self.students = {}
@@ -115,12 +118,15 @@ class App:
 		uids = reduce(operator.add, ([(p.uid, s.uid) for s in p.steps.values()] for p in parts))
 		self.start = uids[0]
 		self.uid_progress = {uid: ii for ii, uid in enumerate(uids)}
+		print(self.uid_progress)
 		self.app_html: Optional[Template] = None
 		# command list
 		self.cmds = {'load': self.load_step, 'run': self.run, 'answer': self.answer }
 		# student directory
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
+		# compiler
+		self.comp = Compiler.clang(working_dir=self.compiler_dir)
 
 	def load_assets(self, app_html):
 		assert self.app_html is None
@@ -152,7 +158,7 @@ class App:
 		if step not in self.parts[part].steps: return Error(f"unknown step {step} for part {part}")
 		path_id = PathId(part=part, step=step, app=self)
 		student = self.students[student_id]
-		if self.uid_progress[student.progress] < path_id.progress: return Error("student is not at this step yet")
+		if student.progress < path_id.progress: return Error("student is not at this step yet")
 		part = self.parts[path_id.part]
 		step = part.steps[path_id.step]
 		return Success((student, part, step))
@@ -172,11 +178,10 @@ class App:
 		if isinstance(step, RunStep):
 			# a run step supports no modifications
 			main_src = part.program
-			make_src = part.makefile
 		else:
-			main_src, make_src = sources['main'], sources['make']
-		# TODO: compile and run sources
-		return Success("{'ret': 'fail'}")
+			main_src = sources['main']
+		rr = self.comp.compile_and_run(flags=[], source=main_src)
+		return Success(json.dumps(rr))
 
 	def answer(self, student, part, step, text):
 		step_id = (part.uid, step.uid)
@@ -195,7 +200,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 			if len(pp) == 3:
 				pp += ['load']
 			student_id, p0, p1, cmd = pp
-			return app.exec(cmd, student_id, (p0, p1), 'TODO')
+			ret = app.exec(cmd, student_id, (p0, p1), 'TODO')
+			print(ret)
+			return ret
 		pdir = os.path.dirname(self.path)
 		for suffix, lib_dir in self.server.lib_dirs.items():
 			if pdir.endswith(suffix):
@@ -206,7 +213,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 	def do_GET(self):
 		ret = self.parse_path()
-		print(ret)
+		#print(ret)
 		if is_error(ret):
 			self.send_response(404)
 			self.end_headers()
