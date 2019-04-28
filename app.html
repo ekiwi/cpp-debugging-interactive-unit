@@ -15,14 +15,56 @@
       <h1>{{ part.name | escape }} - {{ step.name | escape }}</h1>
     </header>
 
+    {%- if step.kind not in ['Done'] %}
     <div class="row" id="program">
       <textarea id="cpp-code">{{ part.program | escape }}</textarea>
     </div>
+    {%- endif %}
 
     <div class="row" id="instructions">
       <h2>Instructions</h2>
       {{ step.instructions | escape }}
     </div>
+
+    {%- if step.kind in ['Question'] %}
+      {%- if student_id not in step.answers %}
+    <div class="row">
+      <section id="student-input">
+      <h1>{{ step.question | escape }}</h1>
+      <form action="{{ step.uid }}/answer" method="post">
+        <textarea name="answer">Enter your idea here....</textarea>
+        <input class="button" type="submit" value="Submit" />
+      </form>
+     </section>
+    </div>
+
+      {%- else %}
+    <div class="row">
+      <section id="student-input">
+      <h1>{{ step.question | escape }}</h1>
+      <form action="{{ step.uid }}/answer" method="post">
+        <textarea name="answer">{{ step.answers[student_id] }}</textarea>
+        <input class="button" type="submit" value="Update" />
+      </form>
+      </section>
+
+      <section id="student-responses">
+      <h1>Other students' responses:</h1>
+      {%- for student, text in step.answers.items() %}
+        {%- if student_id != student %}
+      <div>"{{ text | escape }}"</div>
+        {%- endif %}
+      {%- endfor %}
+      </section>
+    </div>
+    <div class="row">
+      <form action="{{ step.uid }}/next" method="post">
+        <input class="button" type="submit" value="Next" />
+      </form>
+    </div>
+
+      {%- endif %}
+    {%- endif %}
 
     {%- if step.kind in ['Intro'] %}
     <div class="row">
@@ -32,27 +74,6 @@
     </div>
     {%- endif %}
 
-
-    {%- if step.kind in ['Question'] %}
-    <div class="row">
-      <section id="student-input">
-      <h1>{{ step.question | escape }}</h1>
-      <form action="{{ step.uid }}/answer" method="post">
-        <textarea>Enter your idea here....</textarea>
-        <input class="button" type="submit" value="Submit" />
-      </form>
-      </section>
-      <section id="student-responses">
-      <h1>Other students' responses:</h1>
-      <div>"It should do ..."</div>
-      <div>"The program will print out ..."</div>
-      <div>"I expect to see ..."</div>
-      <form action="{{ step.uid }}/next" method="post">
-        <input class="button" type="submit" value="Next" disabled="true" />
-      </form>
-      </section>
-    </div>
-    {%- endif %}
 <!--
 
     <div class="row">

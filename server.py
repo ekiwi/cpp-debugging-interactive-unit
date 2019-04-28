@@ -3,7 +3,7 @@
 
 # Copyright 2019 Kevin Laeufer <laeufer@cs.berkeley.edu>
 
-import json, os, sys
+import json, os, sys, urllib
 import http.server
 from urllib.parse import urlparse
 from typing import List, Optional
@@ -33,15 +33,20 @@ class IntroStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str):
 		super().__init__(uid=uid, name=name, instructions=instructions)
 
+class DoneStep(Step):
+	def __init__(self, uid: int, name: str, instructions: str):
+		super().__init__(uid=uid, name=name, instructions=instructions)
+
 class QuestionStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str, question: str):
 		super().__init__(uid=uid, name=name, instructions=instructions)
 		self.question = question
-		self.answers = []
+		self.answers = {}
 
 	def to_dict(self) -> dict:
 		dd = super().to_dict()
 		dd['question'] = self.question
+		dd['answers'] = self.answers
 		return dd
 
 class RunStep(Step):
@@ -89,11 +94,13 @@ class Student:
 			dd = json.load(ff)
 		assert dd['uid'] == expected_uid, f"{dd['uid']} != {expected_uid}"
 		if dd['progress'] is None: dd['progress'] = start
+		dd['answers'] = { tuple(entry[0]): entry[1] for entry in dd['answers'] }
 		return Student(**dd)
 	def save(self, student_dir: str):
 		assert os.path.isdir(student_dir)
 		filename = os.path.join(student_dir, self.uid + ".json")
-		dd = {'uid': self.uid, 'progress': self.progress, 'answers': self.answers}
+		answers = [(key,value) for key,value in self.answers.items()]
+		dd = {'uid': self.uid, 'progress': self.progress, 'answers': answers}
 		with open(filename, 'w') as ff:
 			json.dump(dd, ff)
 
@@ -146,7 +153,7 @@ class App:
 		print(self.uid_progress)
 		self.app_html: Optional[Template] = None
 		# command list
-		self.cmds = {'next': self.next}
+		self.cmds = {'next': self.next, 'answer': self.answer}
 		# student directory
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
@@ -169,7 +176,7 @@ class App:
 				stud = Student.load(os.path.join(student_dir, filename), self.start)
 				self.students[stud.uid] = stud
 				for (part, step), answer in stud.answers.items():
-					self.parts[part].steps[step].answers.append((stud.uid, answer))
+					self.parts[part].steps[step].answers[stud.uid] = answer
 
 	# run
 
@@ -196,7 +203,7 @@ class App:
 		ret = self.parse_student_path(student_id, path_list)
 		if is_error(ret): return ret
 		else: student, part, step = ret.dat
-		return Success(self.app_html.render({'part': part.to_dict(), 'step': step.to_dict()}))
+		return Success(self.app_html.render({'student_id': student_id, 'part': part.to_dict(), 'step': step.to_dict()}))
 
 	def exec(self, cmd, student_id, path_list, content):
 		ret = self.parse_student_path(student_id, path_list)
@@ -224,12 +231,14 @@ class App:
 		return Redirect('/'.join(['', student.uid, part.uid, next_step.uid]))
 
 
-	def answer(self, student, part, step, text):
+	def answer(self, student, part, step, content):
+		if not isinstance(step, QuestionStep): return Error("Wrong step type! Cannot accept an answer.")
+		text = content['answer'][0]
 		step_id = (part.uid, step.uid)
 		student.answers[step_id] = text
 		student.save(self.student_dir)
-		step.answers.append((student.uid, text))
-		return Success("{'ret': 'success'}")
+		step.answers[student.uid] = text
+		return Redirect('/'.join(['', student.uid, part.uid, step.uid]))
 
 class Handler(http.server.BaseHTTPRequestHandler):
 	def handle_GET(self, app, pp):
@@ -267,9 +276,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
 			if length == 0:
 				content = {}
 			else:
-				content = json.loads(self.rfile.read(length))
+				raw_content = self.rfile.read(length).decode('utf-8')
+				try:
+					content = json.loads(raw_content)
+				except json.JSONDecodeError:
+					content = urllib.parse.parse_qs(raw_content)
+					#print(raw_content)
+					#content = {a:b for a,b in (line.split(" ") for line in raw_content.split('\n') if len(line) > 1)}
 		except Exception as ee:
 			return Error(str(ee))
+		print("POST", content)
 		return self.handle_POST(app=self.server.app, pp=self.path.split('/')[1:], content=content)
 
 	def do_POST(self):
