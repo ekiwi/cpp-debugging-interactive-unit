@@ -24,7 +24,11 @@ class Step:
 		self.instructions = instructions
 
 	def to_dict(self) -> dict:
-		return {'uid': self.uid, 'instructions': self.instructions}
+		return {'uid': self.uid, 'instructions': self.instructions, 'kind': self.__class__.__name__}
+
+class IntroStep(Step):
+	def __init__(self, uid: int, name: str, instructions: str):
+		super().__init__(uid=uid, name=name, instructions=instructions)
 
 class QuestionStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str, question: str):
@@ -175,9 +179,7 @@ class App:
 	def view(self, student_id, path_list):
 		ret = self.parse_student_path(student_id, path_list)
 		if is_error(ret): return ret
-		return self.load_step(*ret.dat)
-
-	def load_step(self, student, part, step):
+		else: student, part, step = ret.dat
 		return Success(self.app_html.render({'part': part.to_dict(), 'step': step.to_dict()}))
 
 	def exec(self, cmd, student_id, path_list, content):
@@ -186,14 +188,14 @@ class App:
 		if cmd not in self.cmds: return Error(f"unknown command: {cmd}")
 		return self.cmds[cmd](*ret.dat, content)
 
-	def run(self, student, part, step, sources):
+	def run(self, _, part, step, content):
 		can_run = isinstance(step, RunStep) or isinstance(step, ModifyStep)
 		if not can_run: return Error("cannot run in this step")
 		if isinstance(step, RunStep):
 			# a run step supports no modifications
 			main_src = part.program
 		else:
-			main_src = sources['main']
+			main_src = content['source']
 		rr = self.comp.compile_and_run(flags=[], source=main_src)
 		return Success(json.dumps(rr))
 
@@ -205,31 +207,13 @@ class App:
 		return Success("{'ret': 'success'}")
 
 class Handler(http.server.BaseHTTPRequestHandler):
-	def parse_path(self):
-		app = self.server.app
-		pp = self.path.split('/')[1:]
-		if len(pp) in {1,3,4} and pp[0] in app.students:
-			if len(pp) == 1:
-				pp += list(app.start)
-			if len(pp) == 3:
-				pp += ['load']
-			student_id, p0, p1, cmd = pp
-			ret = app.exec(cmd, student_id, (p0, p1), 'TODO')
-			print(ret)
-			return ret
-		pdir = os.path.dirname(self.path)
-		for suffix, lib_dir in self.server.lib_dirs.items():
-			if pdir.endswith(suffix):
-				filename = os.path.join(lib_dir, os.path.basename(self.path))
-				with open(filename) as ff:
-					return Success(ff.read())
-		return Error(f"unknown path: {self.path}")
-
 	def handle_GET(self, app, pp):
 		# get requests are only used for loading views and static content
-		if len(pp) in {1, 3} and pp[0] in app.students:
-			if len(pp) == 1:
-				return Redirect('/'.join([pp[0]] + list(app.start)))
+		if len(pp) == 1 and pp[0] in app.students:
+			# if only the student id is given -> redirect to first view
+			return Redirect('/'.join([pp[0]] + list(app.start)))
+		if len(pp) == 3 and pp[0] in app.students:
+			# show view
 			student_id, p0, p1 = pp
 			return app.view(student_id, (p0, p1))
 		# static
@@ -241,19 +225,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
 					return Success(ff.read())
 		return Error(f"unknown path: {self.path}")
 
+	def handle_POST(self, app, pp, content):
+		if len(pp) != 4:
+			return Error(f'Invalid POST path: {pp}')
+		return app.exec(cmd=pp[3], student_id=pp[0], path_list=(pp[1],pp[2]), content=content)
+
 	def do_GET(self):
 		resp = self.handle_GET(app=self.server.app, pp=self.path.split('/')[1:])
 		return self.do_response(resp)
 
-	def do_POST(self):
+	def parse_POST(self):
 		if not 'Content-Length' in self.headers:
-			self.do_404()
-			return
-		length = int(self.headers['Content-Length'])
-		content = json.loads(self.rfile.read(length))
-		print("PATH", self.path)
-		print("CONTENT", content)
-		self.do_response(Redirect('/'))
+			return Error("No Content Length")
+		try:
+			length = int(self.headers['Content-Length'])
+			content = json.loads(self.rfile.read(length))
+		except Exception as ee:
+			return Error(str(ee))
+		return self.handle_POST(app=self.server.app, pp=self.path.split('/')[1:], content=content)
+
+	def do_POST(self):
+		resp = self.parse_POST()
+		return self.do_response(resp)
 
 	def do_response(self, resp):
 		if isinstance(resp, Error):

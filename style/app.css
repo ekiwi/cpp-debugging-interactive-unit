@@ -1,0 +1,38 @@
+* { box-sizing: border-box; margin: auto }
+body { width: 1000px;  }
+h1 { padding: 0; margin: 0; }
+header { width: auto; margin-top: 20px; padding-bottom: 10px; }
+.row { display: table; margin-bottom: 10px; padding-bottom: 10px;
+       border-bottom: 1px solid grey; width: 1000px }
+.row section { float: left; height: auto }
+.row nav { float: left; height: auto }
+/* navigation */
+nav { width: 40%; padding-left: 10px; }
+nav a { display: block; color: #333; padding-bottom: 5px; }
+nav a.active {color: black; font-weight: bold; }
+/* instructions */
+section#instruction { width: 60%; }
+section h1 { font-size: 15pt; margin-bottom: 10px }
+/*  */
+.button { display: block; margin-top: 10px; border: 1px solid black; }
+.button:disabled { border-color: grey; }
+#student-input { width: 40%; }
+#student-input textarea { width: 90%; height: 100px; display: block }
+/*  */
+#student-responses { width: 60%; }
+#student-responses div { padding: 5px; border: 1px solid #666;
+                         margin-bottom: 5px; border-radius: 12px; }
+/* tabs (inspired by https://codepen.io/oknoblich/pen/tfjFl) */
+.tabs input { display: none; }
+.tabs label { display: inline-block; padding: 7px 25px;
+              text-align: center; color: #abc;
+              border: 1px solid transparent; }
+.tabs label:hover { color: #789; cursor: pointer; }
+.tabs input:checked + label { color: #0af; border: 1px solid #abc;
+                              border-top: 2px solid #0af;
+                              border-bottom: 1px solid #fff }
+.tabs div.content { border-top: 1px solid #abc; margin-top: -1px; }
+/* compiler/program output */
+div.output { height: 250px; padding: 5px; padding-left: 15px;
+             background: black; color: white;
+             font-family: monospace; font-size: 12pt; }
