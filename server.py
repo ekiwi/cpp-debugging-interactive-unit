@@ -19,7 +19,7 @@ def assert_uids(items):
 
 class Step:
 	def __init__(self, uid: int, name: str, instructions: str):
-		self.uid = uid
+		self.uid = f'step{uid}'
 		self.name = name
 		self.instructions = instructions
 
@@ -44,7 +44,7 @@ class ModifyStep(Step):
 class Part:
 	def __init__(self, uid: int, name: str, program: str, makefile: str, steps: List[Step]):
 		assert_uids(steps)
-		self.uid = uid
+		self.uid = f'program{uid}'
 		self.name = name
 		self.program = program
 		self.makefile = makefile
@@ -87,15 +87,20 @@ class Success:
 		self.dat = dat
 	def __str__(self):
 		return f"Success({self.dat})"
-
+class Redirect:
+	def __init__(self, path):
+		self.path = path
+	def __str__(self):
+		return f"Redirect({self.path})"
 
 def is_error(e): return isinstance(e, Error)
+def is_redirect(e): return isinstance(e, Redirect)
 
 @total_ordering
 class PathId:
 	def __init__(self, part, step, app):
-		assert isinstance(part, int)
-		assert isinstance(step, int)
+		assert isinstance(part, str)
+		assert isinstance(step, str)
 		assert isinstance(app, App)
 		self.part = part
 		self.step = step
@@ -121,12 +126,14 @@ class App:
 		print(self.uid_progress)
 		self.app_html: Optional[Template] = None
 		# command list
-		self.cmds = {'load': self.load_step, 'run': self.run, 'answer': self.answer }
+		self.cmds = {} #{'load': self.load_step, 'run': self.run, 'answer': self.answer }
 		# student directory
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
 		# compiler
-		self.comp = Compiler.clang(working_dir=self.compiler_dir)
+		self.comp = Compiler.clang(working_dir=compiler_dir)
+
+	# load
 
 	def load_assets(self, app_html):
 		assert self.app_html is None
@@ -144,14 +151,16 @@ class App:
 				for (part, step), answer in stud.answers.items():
 					self.parts[part].steps[step].answers.append((stud.uid, answer))
 
+	# run
+
 	def parse_student_path(self, student_id, path):
 		if len(path) == 0:
 			path = self.start
 		if student_id not in self.students: return Error("unknown student")
 		if len(path) != 2: return Error("path needs to be (part, step)")
 		try:
-			part = int(path[0])
-			step = int(path[1])
+			part = str(path[0])
+			step = str(path[1])
 		except ValueError:
 			return Error(f"invalid path {path}")
 		if part not in self.parts: return Error(f"unknown part: {part}")
@@ -163,14 +172,19 @@ class App:
 		step = part.steps[path_id.step]
 		return Success((student, part, step))
 
+	def view(self, student_id, path_list):
+		ret = self.parse_student_path(student_id, path_list)
+		if is_error(ret): return ret
+		return self.load_step(*ret.dat)
+
+	def load_step(self, student, part, step):
+		return Success(self.app_html.render({'part': part.to_dict(), 'step': step.to_dict()}))
+
 	def exec(self, cmd, student_id, path_list, content):
 		ret = self.parse_student_path(student_id, path_list)
 		if is_error(ret): return ret
 		if cmd not in self.cmds: return Error(f"unknown command: {cmd}")
 		return self.cmds[cmd](*ret.dat, content)
-
-	def load_step(self, student, part, step, _):
-		return Success(self.app_html.render({'part': part.to_dict(), 'step': step.to_dict()}))
 
 	def run(self, student, part, step, sources):
 		can_run = isinstance(step, RunStep) or isinstance(step, ModifyStep)
@@ -211,17 +225,64 @@ class Handler(http.server.BaseHTTPRequestHandler):
 					return Success(ff.read())
 		return Error(f"unknown path: {self.path}")
 
+	def handle_GET(self, app, pp):
+		# get requests are only used for loading views and static content
+		if len(pp) in {1, 3} and pp[0] in app.students:
+			if len(pp) == 1:
+				return Redirect('/'.join([pp[0]] + list(app.start)))
+			student_id, p0, p1 = pp
+			return app.view(student_id, (p0, p1))
+		# static
+		pdir = os.path.dirname(self.path)
+		for suffix, lib_dir in self.server.lib_dirs.items():
+			if pdir.endswith(suffix):
+				filename = os.path.join(lib_dir, os.path.basename(self.path))
+				with open(filename) as ff:
+					return Success(ff.read())
+		return Error(f"unknown path: {self.path}")
+
 	def do_GET(self):
-		ret = self.parse_path()
-		#print(ret)
-		if is_error(ret):
-			self.send_response(404)
-			self.end_headers()
-			self.wfile.write(self.server.error_html)
+		resp = self.handle_GET(app=self.server.app, pp=self.path.split('/')[1:])
+		return self.do_response(resp)
+
+	def do_POST(self):
+		if not 'Content-Length' in self.headers:
+			self.do_404()
+			return
+		length = int(self.headers['Content-Length'])
+		content = json.loads(self.rfile.read(length))
+		print("PATH", self.path)
+		print("CONTENT", content)
+		self.do_response(Redirect('/'))
+
+	def do_response(self, resp):
+		if isinstance(resp, Error):
+			print(resp)
+			self.do_404()
+		elif isinstance(resp, Success):
+			self.do_200(resp.dat)
+		elif isinstance(resp, Redirect):
+			print(resp)
+			self.do_303(resp.path)
 		else:
-			self.send_response(200)
-			self.end_headers()
-			self.wfile.write(ret.dat.encode('utf8'))
+			assert False, f"Invalid response: {resp}"
+
+	def do_404(self):
+		self.send_response(404)
+		self.end_headers()
+		self.wfile.write(self.server.html_404)
+
+	def do_200(self, response):
+		assert isinstance(response, str), response
+		self.send_response(200)
+		self.end_headers()
+		self.wfile.write(response.encode('utf8'))
+
+	def do_303(self, url):
+		self.send_response(303, 'See Other')
+		self.send_header('Location', url)
+		self.end_headers()
+		self.wfile.write(self.server.html_303)
 
 
 
@@ -235,7 +296,9 @@ class Server(http.server.ThreadingHTTPServer):
 		self.app.load_students(student_dir=os.path.join(app_dir, student_dir))
 		self.lib_dirs = {dd: os.path.join(app_dir, dd) for dd in lib_dirs}
 		with open(os.path.join(app_dir, '404.html')) as ff:
-			self.error_html = ff.read().encode('utf8')
+			self.html_404 = ff.read().encode('utf8')
+		with open(os.path.join(app_dir, '303.html')) as ff:
+			self.html_303 = ff.read().encode('utf8')
 
 		super().__init__(address, Handler)
 
