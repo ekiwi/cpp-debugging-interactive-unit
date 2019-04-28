@@ -24,7 +24,10 @@ class Step:
 		self.instructions = instructions
 
 	def to_dict(self) -> dict:
-		return {'uid': self.uid, 'instructions': self.instructions, 'kind': self.__class__.__name__}
+		name = self.__class__.__name__
+		assert name.endswith('Step')
+		kind = name[:-4]
+		return {'uid': self.uid, 'instructions': self.instructions, 'name': self.name, 'kind': kind}
 
 class IntroStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str):
@@ -35,6 +38,11 @@ class QuestionStep(Step):
 		super().__init__(uid=uid, name=name, instructions=instructions)
 		self.question = question
 		self.answers = []
+
+	def to_dict(self) -> dict:
+		dd = super().to_dict()
+		dd['question'] = self.question
+		return dd
 
 class RunStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str):

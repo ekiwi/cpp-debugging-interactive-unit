@@ -8,10 +8,11 @@
     <script src="ext/codemirror-5.45.0/lib/codemirror.js"></script>
     <link rel="stylesheet" href="ext/codemirror-5.45.0/lib/codemirror.css" />
     <script src="ext/codemirror-5.45.0/mode/clike/clike.js"></script>
+    <style>.CodeMirror { font-size: 16px; }</style>
   </head>
   <body>
     <header>
-      <h1>{{ part.name | escape }}</h1>
+      <h1>{{ part.name | escape }} - {{ step.name | escape }}</h1>
     </header>
 
     <div class="row" id="program">
@@ -23,12 +24,35 @@
       {{ step.instructions | escape }}
     </div>
 
+    {%- if step.kind in ['Intro'] %}
     <div class="row">
       <form action="{{ step.uid }}/next" method="post">
         <input class="button" type="submit" value="Next" />
       </form>
     </div>
+    {%- endif %}
 
+
+    {%- if step.kind in ['Question'] %}
+    <div class="row">
+      <section id="student-input">
+      <h1>{{ step.question | escape }}</h1>
+      <form action="{{ step.uid }}/answer" method="post">
+        <textarea>Enter your idea here....</textarea>
+        <input class="button" type="submit" value="Submit" />
+      </form>
+      </section>
+      <section id="student-responses">
+      <h1>Other students' responses:</h1>
+      <div>"It should do ..."</div>
+      <div>"The program will print out ..."</div>
+      <div>"I expect to see ..."</div>
+      <form action="{{ step.uid }}/next" method="post">
+        <input class="button" type="submit" value="Next" disabled="true" />
+      </form>
+      </section>
+    </div>
+    {%- endif %}
 <!--
 
     <div class="row">
@@ -97,7 +121,13 @@
     var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
       mode:  "text/x-c++src",
       lineNumbers: true,
-      matchBrackets: true
+      matchBrackets: true,
+    {% if step.kind in ['Modify'] -%}
+      readOnly: false,
+    {% else -%}
+      readOnly: true,
+    {%- endif %}
+      identUnit: 4
     });
     var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
     CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
