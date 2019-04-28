@@ -53,11 +53,19 @@ class Part:
 		self.program = program
 		self.makefile = makefile
 
+		self.step_to_pos = {s: ii for ii, s in enumerate(steps)}
+		self.pos_to_step = steps
+		self.step_count = len(steps)
 		self.steps = {s.uid: s for s in steps}
 
 	def to_dict(self) -> dict:
 		return {'uid': self.uid, 'name': self.name, 'program': self.program, 'makefile': self.makefile,
 				'steps': [(s.name, s.uid) for s in self.steps.values()] }
+
+	def next_step(self, step):
+		next_pos = self.step_to_pos.get(step, self.step_count - 1) + 1
+		if next_pos >= self.step_count: return None
+		return self.pos_to_step[next_pos]
 
 class Student:
 	def __init__(self, uid, progress, answers):
@@ -130,7 +138,7 @@ class App:
 		print(self.uid_progress)
 		self.app_html: Optional[Template] = None
 		# command list
-		self.cmds = {} #{'load': self.load_step, 'run': self.run, 'answer': self.answer }
+		self.cmds = {'next': self.next}
 		# student directory
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
@@ -199,6 +207,15 @@ class App:
 		rr = self.comp.compile_and_run(flags=[], source=main_src)
 		return Success(json.dumps(rr))
 
+	def next(self, student, part, step, content):
+		# find next step and update student progress
+		next_step = part.next_step(step)
+		if next_step is None:
+			return Error("Done. TODO: implement done state")
+		student.progress = self.uid_progress[(part.uid, next_step.uid)]
+		return Redirect('/'.join(['', student.uid, part.uid, next_step.uid]))
+
+
 	def answer(self, student, part, step, text):
 		step_id = (part.uid, step.uid)
 		student.answers[step_id] = text
@@ -239,7 +256,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
 			return Error("No Content Length")
 		try:
 			length = int(self.headers['Content-Length'])
-			content = json.loads(self.rfile.read(length))
+			if length == 0:
+				content = {}
+			else:
+				content = json.loads(self.rfile.read(length))
 		except Exception as ee:
 			return Error(str(ee))
 		return self.handle_POST(app=self.server.app, pp=self.path.split('/')[1:], content=content)

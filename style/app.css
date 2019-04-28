@@ -10,6 +10,9 @@ header { width: auto; margin-top: 20px; padding-bottom: 10px; }
 nav { width: 40%; padding-left: 10px; }
 nav a { display: block; color: #333; padding-bottom: 5px; }
 nav a.active {color: black; font-weight: bold; }
+/* program */
+div#program { border: 1px #666 solid; }
+
 /* instructions */
 section#instruction { width: 60%; }
 section h1 { font-size: 15pt; margin-bottom: 10px }

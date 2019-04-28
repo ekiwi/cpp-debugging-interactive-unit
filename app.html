@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <title>C++ Debugging Exercise</title>
-    <link rel="stylesheet" href="style/app.css">
+    <link rel="stylesheet" href="style/app.css" />
     <!-- codemirror -->
     <script src="ext/codemirror-5.45.0/lib/codemirror.js"></script>
     <link rel="stylesheet" href="ext/codemirror-5.45.0/lib/codemirror.css" />
@@ -11,8 +11,26 @@
   </head>
   <body>
     <header>
-      <h1>{{ part.name }}</h1>
+      <h1>{{ part.name | escape }}</h1>
     </header>
+
+    <div class="row" id="program">
+      <textarea id="cpp-code">{{ part.program | escape }}</textarea>
+    </div>
+
+    <div class="row" id="instructions">
+      <h2>Instructions</h2>
+      {{ step.instructions | escape }}
+    </div>
+
+    <div class="row">
+      <form action="{{ step.uid }}/next" method="post">
+        <input class="button" type="submit" value="Next" />
+      </form>
+    </div>
+
+<!--
+
     <div class="row">
     <nav>
     {% for s in part.steps %}
@@ -73,21 +91,16 @@
       </div>
     </div>
 
-
+-->
   <!-- checkout https://codemirror.net/mode/clike/ -->
   <script>
-    var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("c-code"), {
+    var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
       mode:  "text/x-c++src",
       lineNumbers: true,
       matchBrackets: true
     });
     var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
     CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
-    var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("makefile"), {
-      mode:  "text/x-cmake",
-      lineNumbers: true,
-      matchBrackets: true
-    });
 
     // tab switch function
     function tab(el) {
