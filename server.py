@@ -80,12 +80,18 @@ class Part:
 		if next_pos >= self.step_count: return None
 		return self.pos_to_step[next_pos]
 
+def load_step_specific_data(data):
+	return {tuple(entry[0]): entry[1] for entry in data}
+def save_step_specific_data(data):
+	return [(key,value) for key,value in data.items()]
+
 class Student:
-	def __init__(self, uid, progress, answers):
+	def __init__(self, uid, progress, answers, runs):
 		assert isinstance(progress, int)
 		self.uid = uid
 		self.progress = progress
 		self.answers = answers
+		self.runs = runs
 	@staticmethod
 	def load(filename: str, start):
 		assert filename.endswith('.json')
@@ -94,13 +100,15 @@ class Student:
 			dd = json.load(ff)
 		assert dd['uid'] == expected_uid, f"{dd['uid']} != {expected_uid}"
 		if dd['progress'] is None: dd['progress'] = start
-		dd['answers'] = { tuple(entry[0]): entry[1] for entry in dd['answers'] }
+		dd['answers'] = load_step_specific_data(dd.get('answers', []))
+		dd['runs'] = load_step_specific_data(dd.get('runs', []))
 		return Student(**dd)
 	def save(self, student_dir: str):
 		assert os.path.isdir(student_dir)
 		filename = os.path.join(student_dir, self.uid + ".json")
-		answers = [(key,value) for key,value in self.answers.items()]
-		dd = {'uid': self.uid, 'progress': self.progress, 'answers': answers}
+		answers = save_step_specific_data(self.answers)
+		runs = save_step_specific_data(self.runs)
+		dd = {'uid': self.uid, 'progress': self.progress, 'answers': answers, 'runs': runs}
 		with open(filename, 'w') as ff:
 			json.dump(dd, ff)
 
@@ -153,7 +161,7 @@ class App:
 		print(self.uid_progress)
 		self.app_html: Optional[Template] = None
 		# command list
-		self.cmds = {'next': self.next, 'answer': self.answer}
+		self.cmds = {'next': self.next, 'answer': self.answer, 'run': self.run}
 		# student directory
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
@@ -203,7 +211,13 @@ class App:
 		ret = self.parse_student_path(student_id, path_list)
 		if is_error(ret): return ret
 		else: student, part, step = ret.dat
-		return Success(self.app_html.render({'student_id': student_id, 'part': part.to_dict(), 'step': step.to_dict()}))
+		rr = student.runs.get((part.uid, step.uid), None)
+		dd = {'student_id': student_id,
+			  'part': part.to_dict(),
+			  'step': step.to_dict(),
+			  'run': rr,
+			  }
+		return Success(self.app_html.render(dd))
 
 	def exec(self, cmd, student_id, path_list, content):
 		ret = self.parse_student_path(student_id, path_list)
@@ -211,16 +225,19 @@ class App:
 		if cmd not in self.cmds: return Error(f"unknown command: {cmd}")
 		return self.cmds[cmd](*ret.dat, content)
 
-	def run(self, _, part, step, content):
+	def run(self, student, part, step, content):
 		can_run = isinstance(step, RunStep) or isinstance(step, ModifyStep)
 		if not can_run: return Error("cannot run in this step")
 		if isinstance(step, RunStep):
 			# a run step supports no modifications
 			main_src = part.program
 		else:
-			main_src = content['source']
+			main_src = content['code'][0]
 		rr = self.comp.compile_and_run(flags=[], source=main_src)
-		return Success(json.dumps(rr))
+		step_id = (part.uid, step.uid)
+		student.runs[step_id] = rr
+		student.save(self.student_dir)
+		return Redirect('/'.join(['', student.uid, part.uid, step.uid]))
 
 	def next(self, student, part, step, content):
 		# find next step and update student progress
