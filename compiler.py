@@ -10,7 +10,7 @@ def ret_to_dict(ret):
 
 class Compiler:
 	def __init__(self, working_dir):
-		self.allowed_flags = [f'-O{ii}' for ii in range(5)] + ['-g', '-Wall', '-fsanitize=address']
+		self.allowed_flags = [f'-O{ii}' for ii in range(4)] + ['-g', '-Wall', '-fsanitize=address']
 		self.working_dir = os.path.abspath(working_dir)
 		self.versions = self.test()
 

@@ -149,6 +149,20 @@ class PathId:
 		assert isinstance(other, PathId)
 		return self.progress < other.progress
 
+def selected_flags(rr):
+	if rr is None:
+		flags = ['-O3']
+		compiler = 'g++'
+	else:
+		flags = rr['flags']
+		compiler = rr['compiler']
+	dd = {compiler: 'selected=""'}
+	print(flags)
+	for flag in flags:
+		dd[flag] = 'selected=""' if flag.startswith('-O') else 'checked=""'
+	print(dd)
+	return dd
+
 class App:
 	def __init__(self, parts: List[Part], student_dir, compiler_dir):
 		assert_uids(parts)
@@ -216,6 +230,7 @@ class App:
 			  'part': part.to_dict(),
 			  'step': step.to_dict(),
 			  'run': rr,
+			  'flags': selected_flags(rr),
 			  }
 		return Success(self.app_html.render(dd))
 

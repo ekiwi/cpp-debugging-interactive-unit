@@ -34,18 +34,18 @@
     <div class="row">
       <form action="{{ step.uid }}/run" method="post" onsubmit="copyCode(this)">
         <select name="compiler">
-          <option value="g++">g++</option>
-          <option value="clang++">clang++</option>
+          <option value="g++" {{ flags['g++'] }}>g++</option>
+          <option value="clang++" {{ flags['clang++'] }}>clang++</option>
         </select>
         <select name="flag1">
-          <option value="-O0">-O0</option>
-          <option value="-O1">-O1</option>
-          <option value="-O2">-O2</option>
-          <option value="-O3">-O3</option>
+          <option value="-O0" {{ flags['-O0'] }}>-O0</option>
+          <option value="-O1" {{ flags['-O1'] }}>-O1</option>
+          <option value="-O2" {{ flags['-O2'] }}>-O2</option>
+          <option value="-O3" {{ flags['-O3'] }}>-O3</option>
         </select>
-        <input type="checkbox" name="flag2" value="-g" /><label for="flag2">-g</label>
-        <input type="checkbox" name="flag3" value="-Wall" /><label for="flag3">-Wall</label>
-        <input type="checkbox" name="flag4" value="-fsanitize=address" /><label for="flag4">-fsanitize=address</label>
+        <input type="checkbox" name="flag2" value="-g" {{ flags['-g'] }}/><label for="flag2">-g</label>
+        <input type="checkbox" name="flag3" value="-Wall" {{ flags['-Wall'] }}/><label for="flag3">-Wall</label>
+        <input type="checkbox" name="flag4" value="-fsanitize=address" {{ flags['-fsanitize=address'] }}/><label for="flag4">-fsanitize=address</label>
         <textarea style="display:none;" name="code" id="code"></textarea>
         <input class="button" type="submit" value="Compile &amp; Run" />
       </form>

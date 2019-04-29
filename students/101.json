@@ -1,1 +1,100 @@
-{"uid": "101", "progress": 6, "answers": [[["program1", "step2"], "Test Idea"], [["program1", "step3"], "Enter your idea here...."], [["program1", "step4"], "Enter your idea here...."]], "runs": [[["program1", "step5"], {"compile": {"ret": 0, "stdout": "", "stderr": ""}, "run": {"ret": 1, "stdout": "", "stderr": "=================================================================\n==27948==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffd16c17b88 at pc 0x0000004012ec bp 0x7ffd16c17b10 sp 0x7ffd16c17b00\nWRITE of size 4 at 0x7ffd16c17b88 thread T0\n    #0 0x4012eb in main /home/kevin/cpp-debugging-interactive-unit/compiler/g++_5cf4_ckk/program.cpp:8\n    #1 0x7f8e45a21412 in __libc_start_main (/lib64/libc.so.6+0x24412)\n    #2 0x40114d in _start (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_5cf4_ckk/program+0x40114d)\n\nAddress 0x7ffd16c17b88 is located in stack of thread T0 at offset 72 in frame\n    #0 0x401215 in main /home/kevin/cpp-debugging-interactive-unit/compiler/g++_5cf4_ckk/program.cpp:4\n\n  This frame has 1 object(s):\n    [32, 72) 'buffer' <== Memory access at offset 72 overflows this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism or swapcontext\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-buffer-overflow /home/kevin/cpp-debugging-interactive-unit/compiler/g++_5cf4_ckk/program.cpp:8 in main\nShadow bytes around the buggy address:\n  0x100022d7af20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7af30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7af40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7af50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7af60: 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00\n=>0x100022d7af70: 00[f2]f2 f2 f3 f3 f3 f3 00 00 00 00 00 00 00 00\n  0x100022d7af80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7af90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7afa0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7afb0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100022d7afc0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==27948==ABORTING\n"}, "flags": ["-O0", "-g", "-fsanitize=address"], "source": "\n#include<iostream>\n\nint main(int argc, const char* argv[]) {\n    int buffer[10];\n    int x;\n    for(int ii = 1; ii <= 10; ii += 1) {\n        buffer[ii] = ii;\n    }\n    std::cout << buffer[10] << std::endl;\n}\n"}], [["program1", "step6"], {"compile": {"ret": 0, "stdout": "", "stderr": "program.cpp:9:18: warning: array index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\n    std::cout << buffer[10] << std::endl;\n                 ^      ~~\nprogram.cpp:4:5: note: array 'buffer' declared here\n    int buffer[10];\n    ^\n1 warning generated.\n"}, "run": {"ret": 0, "stdout": "25\n", "stderr": ""}, "flags": [], "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 10; ii += 1) {\r\n        buffer[ii]  = 15 + ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n"}], [["program1", "step7"], {"compile": {"ret": 0, "stdout": "", "stderr": ""}, "run": {"ret": 0, "stdout": "9\n", "stderr": ""}, "flags": [], "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 9; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[9] << std::endl;\r\n}\r\n"}]]}
+{
+  "uid": "101",
+  "progress": 6,
+  "answers": [
+    [
+      [
+        "program1",
+        "step2"
+      ],
+      "Test Idea"
+    ],
+    [
+      [
+        "program1",
+        "step3"
+      ],
+      "Enter your idea here...."
+    ],
+    [
+      [
+        "program1",
+        "step4"
+      ],
+      "Enter your idea here...."
+    ]
+  ],
+  "runs": [
+    [
+      [
+        "program1",
+        "step5"
+      ],
+      {
+        "compile": {
+          "ret": 0,
+          "stdout": "",
+          "stderr": "program.cpp:10:18: warning: array index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\n    std::cout << buffer[10] << std::endl;\n                 ^      ~~\nprogram.cpp:5:5: note: array 'buffer' declared here\n    int buffer[10];\n    ^\n1 warning generated.\n"
+        },
+        "run": {
+          "ret": 0,
+          "stdout": "10\n",
+          "stderr": ""
+        },
+        "flags": [
+          "-O3"
+        ],
+        "source": "\n#include<iostream>\n\nint main(int argc, const char* argv[]) {\n    int buffer[10];\n    int x;\n    for(int ii = 1; ii <= 10; ii += 1) {\n        buffer[ii] = ii;\n    }\n    std::cout << buffer[10] << std::endl;\n}\n",
+        "compiler": "clang++"
+      }
+    ],
+    [
+      [
+        "program1",
+        "step6"
+      ],
+      {
+        "compile": {
+          "ret": 0,
+          "stdout": "",
+          "stderr": "program.cpp:9:18: warning: array index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\n    std::cout << buffer[10] << std::endl;\n                 ^      ~~\nprogram.cpp:4:5: note: array 'buffer' declared here\n    int buffer[10];\n    ^\n1 warning generated.\n"
+        },
+        "run": {
+          "ret": 0,
+          "stdout": "10\n",
+          "stderr": ""
+        },
+        "flags": [
+          "-O3",
+          "-fsanitize=address"
+        ],
+        "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
+        "compiler": "clang++"
+      }
+    ],
+    [
+      [
+        "program1",
+        "step7"
+      ],
+      {
+        "compile": {
+          "ret": 0,
+          "stdout": "",
+          "stderr": "program.cpp: In function \u2018int main(int, const char**)\u2019:\nprogram.cpp:7:20: warning: iteration 9 invokes undefined behavior [-Waggressive-loop-optimizations]\n         buffer[ii] = ii;\n         ~~~~~~~~~~~^~~~\nprogram.cpp:6:24: note: within this loop\n     for(int ii = 1; ii <= 10; ii += 1) {\n                     ~~~^~~~~\n"
+        },
+        "run": {
+          "ret": 0,
+          "stdout": "0\n",
+          "stderr": ""
+        },
+        "flags": [
+          "-O3",
+          "-g"
+        ],
+        "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
+        "compiler": "g++"
+      }
+    ]
+  ]
+}
