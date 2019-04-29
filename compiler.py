@@ -9,22 +9,10 @@ def ret_to_dict(ret):
 	return { 'ret': ret.returncode, 'stdout': ret.stdout.decode('utf8'), 'stderr': ret.stderr.decode('utf-8') }
 
 class Compiler:
-	@staticmethod
-	def gcc(working_dir):
-		flags = ['-O0']
-		return Compiler(binary='g++', allowed_flags=flags, working_dir=working_dir)
-
-	@staticmethod
-	def clang(working_dir):
-		flags = ['-O0']
-		return Compiler(binary='clang++', allowed_flags=flags, working_dir=working_dir)
-
-
-	def __init__(self, binary, allowed_flags, working_dir):
-		self.binary = binary
-		self.allowed_flags = allowed_flags
+	def __init__(self, working_dir):
+		self.allowed_flags = [f'-O{ii}' for ii in range(5)] + ['-g', '-Wall', '-fsanitize=address']
 		self.working_dir = os.path.abspath(working_dir)
-		self.version = self.test()
+		self.versions = self.test()
 
 	def test(self):
 		# ensure working dir exists
@@ -35,45 +23,53 @@ class Compiler:
 		assert os.path.isdir(self.working_dir), f"{self.working_dir} does not exist"
 
 		# ensure compiler is available
-		r = self._run('--version')
-		assert r.returncode == 0, f"compiler {self.binary} not found: {r.stderr}"
-		name, version = re.match(r'([a-zA-Z\(\) ]+)([\d\.]+)', r.stdout.decode('utf-8')).groups()
-		return version
+		versions = []
+		for comp in ['g++', 'clang++']:
+			r = self._run(comp, '--version')
+			assert r.returncode == 0, f"compiler {comp} not found: {r.stderr}"
+			name, version = re.match(r'([a-zA-Z\+\(\) ]+)([\d\.]+)', r.stdout.decode('utf-8')).groups()
+			versions.append(version)
+		return versions
 
-	def _run(self, args, cwd=None):
+	def _run(self, compiler, args, cwd=None):
+		assert compiler in {'g++', 'clang++'}
 		if cwd is None: cwd = self.working_dir
 		assert os.path.isdir(cwd)
 		if not isinstance(args, list): args = [args]
-		cmd = [self.binary] + args
+		cmd = [compiler] + args
 		PIPE=subprocess.PIPE
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
 		return ret
 
-	def compile(self, flags, source, exe):
+	def compile(self, compiler, flags, source, exe):
 		assert isinstance(flags, list)
+		if compiler not in {'g++', 'clang++'} : return None, None
 		for flag in flags:
 			if flag not in self.allowed_flags:
-				return {}
+				return None, None
 		# get working directory
-		cwd = tempfile.mkdtemp(prefix=self.binary+'_', dir=self.working_dir)
+		cwd = tempfile.mkdtemp(prefix=compiler+'_', dir=self.working_dir)
+		print(cwd)
 		# generate c++ file
 		program_cpp = 'program.cpp'
 		with open(os.path.join(cwd, program_cpp), 'w') as ff: ff.write(source)
 		# create argument list
 		args = flags + [program_cpp, '-o', exe]
 		# compile program
-		r = self._run(args=args, cwd=cwd)
+		r = self._run(compiler, args=args, cwd=cwd)
 		if r.returncode == 0:
 			assert os.path.isfile(os.path.join(cwd, exe))
 		return cwd, ret_to_dict(r)
 
-	def compile_and_run(self, flags, source):
+	def compile_and_run(self, compiler, flags, source):
+		#print(f'compile_and_run({compiler}, {flags}, {source})')
 		exe = 'program'
-		cwd, cc = self.compile(flags=flags, source=source, exe=exe)
+		cwd, cc = self.compile(compiler=compiler, flags=flags, source=source, exe=exe)
+		if cc is None: return None
 		if cc['ret'] != 0:
 			return {'compile': cc, 'run': {}}
 		# run program
 		PIPE = subprocess.PIPE
 		cmd = [os.path.join(cwd, exe)]
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
-		return {'compile': cc, 'run': ret_to_dict(ret), 'flags': flags, 'source': source}
+		return {'compile': cc, 'run': ret_to_dict(ret), 'flags': flags, 'source': source, 'compiler': compiler}

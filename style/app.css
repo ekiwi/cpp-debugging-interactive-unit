@@ -37,5 +37,5 @@ section h1 { font-size: 15pt; margin-bottom: 10px }
 .tabs div.content { border-top: 1px solid #abc; margin-top: -1px; }
 /* compiler/program output */
 div.output { height: 250px; padding: 5px; padding-left: 15px;
-             background: black; color: white;
+             background: black; color: white; overflow: scroll;
              font-family: monospace; font-size: 12pt; }

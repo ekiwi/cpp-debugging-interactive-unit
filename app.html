@@ -33,6 +33,19 @@
     {%- if step.kind in ['Run', 'Modify'] %}
     <div class="row">
       <form action="{{ step.uid }}/run" method="post" onsubmit="copyCode(this)">
+        <select name="compiler">
+          <option value="g++">g++</option>
+          <option value="clang++">clang++</option>
+        </select>
+        <select name="flag1">
+          <option value="-O0">-O0</option>
+          <option value="-O1">-O1</option>
+          <option value="-O2">-O2</option>
+          <option value="-O3">-O3</option>
+        </select>
+        <input type="checkbox" name="flag2" value="-g" /><label for="flag2">-g</label>
+        <input type="checkbox" name="flag3" value="-Wall" /><label for="flag3">-Wall</label>
+        <input type="checkbox" name="flag4" value="-fsanitize=address" /><label for="flag4">-fsanitize=address</label>
         <textarea style="display:none;" name="code" id="code"></textarea>
         <input class="button" type="submit" value="Compile &amp; Run" />
       </form>
@@ -96,10 +109,10 @@
       <label for="tab4">Program Output</label>
       </form>
       <div id="content3" class="content">
-        <div id="compiler-out" class="output">{{ run.compile.stderr | escape }}</div>
+        <div id="compiler-out" class="output">{{ run.compile.stderr | escape }}<br/>{{ run.compile.stdout | escape }}</div>
       </div>
       <div id="content4" class="content">
-        <div id="program-out" class="output">{{ run.run.stdout | escape }}</div>
+        <div id="program-out" class="output">{{ run.run.stdout | escape }}<br/>{{ run.run.stderr | escape }}</div>
       </div>
     </div>
     <div class="row">

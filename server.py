@@ -110,7 +110,7 @@ class Student:
 		runs = save_step_specific_data(self.runs)
 		dd = {'uid': self.uid, 'progress': self.progress, 'answers': answers, 'runs': runs}
 		with open(filename, 'w') as ff:
-			json.dump(dd, ff)
+			json.dump(dd, ff, indent=2)
 
 class Error:
 	def __init__(self, msg):
@@ -166,7 +166,7 @@ class App:
 		assert os.path.isdir(student_dir)
 		self.student_dir = student_dir
 		# compiler
-		self.comp = Compiler.clang(working_dir=compiler_dir)
+		self.comp = Compiler(working_dir=compiler_dir)
 
 	# load
 
@@ -228,12 +228,12 @@ class App:
 	def run(self, student, part, step, content):
 		can_run = isinstance(step, RunStep) or isinstance(step, ModifyStep)
 		if not can_run: return Error("cannot run in this step")
-		if isinstance(step, RunStep):
-			# a run step supports no modifications
-			main_src = part.program
-		else:
-			main_src = content['code'][0]
-		rr = self.comp.compile_and_run(flags=[], source=main_src)
+		if isinstance(step, RunStep): main_src = part.program
+		else:                         main_src = content['code'][0]
+		compiler = content['compiler'][0]
+		flags = [content[f'flag{ii}'][0] for ii in range(10) if f'flag{ii}' in content]
+		rr = self.comp.compile_and_run(compiler=compiler, flags=flags, source=main_src)
+		if rr is None: return Error(f'Invalid compile and run command: {content}')
 		step_id = (part.uid, step.uid)
 		student.runs[step_id] = rr
 		student.save(self.student_dir)
