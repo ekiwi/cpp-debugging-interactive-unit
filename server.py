@@ -248,6 +248,7 @@ class App:
 		compiler = content['compiler'][0]
 		flags = [content[f'flag{ii}'][0] for ii in range(10) if f'flag{ii}' in content]
 		rr = self.comp.compile_and_run(compiler=compiler, flags=flags, source=main_src)
+		rr.update({'flags': flags, 'source': main_src, 'compiler': compiler})
 		if rr is None: return Error(f'Invalid compile and run command: {content}')
 		step_id = (part.uid, step.uid)
 		student.runs[step_id] = rr

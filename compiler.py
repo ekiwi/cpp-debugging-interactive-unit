@@ -72,4 +72,4 @@ class Compiler:
 		PIPE = subprocess.PIPE
 		cmd = [os.path.join(cwd, exe)]
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
-		return {'compile': cc, 'run': ret_to_dict(ret), 'flags': flags, 'source': source, 'compiler': compiler}
+		return {'compile': cc, 'run': ret_to_dict(ret)}
