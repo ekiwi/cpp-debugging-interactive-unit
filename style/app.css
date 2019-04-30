@@ -14,8 +14,8 @@ nav a.active {color: black; font-weight: bold; }
 div#program { border: 1px #666 solid; }
 
 /* instructions */
-section#instruction { width: 60%; }
-section h1 { font-size: 15pt; margin-bottom: 10px }
+div#instruction div { width: 60%; }
+
 /*  */
 .button { display: block; margin-top: 10px; border: 1px solid black; }
 .button:disabled { border-color: grey; }
@@ -25,17 +25,15 @@ section h1 { font-size: 15pt; margin-bottom: 10px }
 #student-responses { width: 60%; }
 #student-responses div { padding: 5px; border: 1px solid #666;
                          margin-bottom: 5px; border-radius: 12px; }
-/* tabs (inspired by https://codepen.io/oknoblich/pen/tfjFl) */
-.tabs input { display: none; }
-.tabs label { display: inline-block; padding: 7px 25px;
-              text-align: center; color: #abc;
-              border: 1px solid transparent; }
-.tabs label:hover { color: #789; cursor: pointer; }
-.tabs input:checked + label { color: #0af; border: 1px solid #abc;
-                              border-top: 2px solid #0af;
-                              border-bottom: 1px solid #fff }
-.tabs div.content { border-top: 1px solid #abc; margin-top: -1px; }
+
 /* compiler/program output */
 div.output { height: 250px; padding: 5px; padding-left: 15px;
              background: black; color: white; overflow: scroll;
              font-family: monospace; font-size: 12pt; }
+
+/* headings */
+div.row h2 { display: inline-block; padding: 7px 25px; width: 100%;
+             margin-bottom: 6px; color: #0af; border: 2px solid #0af;
+             font-size: 20px; }
+
+

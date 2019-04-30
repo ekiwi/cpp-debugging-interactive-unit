@@ -17,16 +17,21 @@
 
     <div class="row" id="instructions">
       <h2>Instructions</h2>
+      <div>
       {{ step.instructions | escape }}
+      </div>
     </div>
 
     {%- if step.kind not in ['Done'] %}
-    <div class="row" id="program">
+    <div class="row">
+      <h2>program.cpp</h2>
+      <div id="program">
       {%- if run is none %}
       <textarea id="cpp-code">{{ part.program }}</textarea>
       {%- else %}
       <textarea id="cpp-code">{{ run.source }}</textarea>
        {%- endif %}
+      </div>
     </div>
     {%- endif %}
 
@@ -75,11 +80,9 @@
       </section>
 
       <section id="student-responses">
-      <h1>Other students' responses:</h1>
+      <h1>Student responses:</h1>
       {%- for student, text in step.answers.items() %}
-        {%- if student_id != student %}
       <div>"{{ text | escape }}"</div>
-        {%- endif %}
       {%- endfor %}
       </section>
     </div>
@@ -101,19 +104,13 @@
     {%- endif %}
 
     {%- if step.kind in ['Run', 'Modify'] and run is not none %}
-    <div class="row tabs">
-      <form>
-      <input id="tab3" type="radio" name="tabs" checked="true" onchange="tab(this)"/>
-      <label for="tab3">Compiler Output</label>
-      <input id="tab4" type="radio" name="tabs" onchange="tab(this)"/>
-      <label for="tab4">Program Output</label>
-      </form>
-      <div id="content3" class="content">
-        <div id="compiler-out" class="output">{{ run.compile.stderr | escape }}<br/>{{ run.compile.stdout | escape }}</div>
-      </div>
-      <div id="content4" class="content">
-        <div id="program-out" class="output">{{ run.run.stdout | escape }}<br/>{{ run.run.stderr | escape }}</div>
-      </div>
+    <div class="row">
+      <h2>Compiler Output</h2>
+      <div id="compiler-out" class="output">{{ run.compile.stderr | escape }}<br/>{{ run.compile.stdout | escape }}</div>
+    </div>
+    <div class="row">
+      <h2>Program Output</h2>
+      <div id="program-out" class="output">{{ run.run.stdout | escape }}<br/>{{ run.run.stderr | escape }}</div>
     </div>
     <div class="row">
       <form action="{{ step.uid }}/next" method="post">
@@ -154,6 +151,7 @@
       node.style.display = "none";
     });
     // display program output
+    tab(document.getElementById("tab3"));
     tab(document.getElementById("tab4"));
 
     // copy code before submitting

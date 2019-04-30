@@ -7,21 +7,21 @@
         "program1",
         "step2"
       ],
-      "Test Idea"
+      "sigsegv signal 11"
     ],
     [
       [
         "program1",
         "step3"
       ],
-      "Enter your idea here...."
+      "THERE IS A FLAGRANT BUFFER OVERFLOW ON LINE 6/7.  PLEASE REMOVE. THXS.  EOM"
     ],
     [
       [
         "program1",
         "step4"
       ],
-      "Enter your idea here...."
+      "I WOULD NOT. I AM AN EXPERT PROGRAMMER, SO I ALREADY KNOW WHAT THE BUG IS.  THX.  EOM\r\n\r\nALSO, IMPLEMENTING IN RUST IS ONE OPTION."
     ]
   ],
   "runs": [
@@ -34,7 +34,7 @@
         "compile": {
           "ret": 0,
           "stdout": "",
-          "stderr": "program.cpp:10:18: warning: array index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\n    std::cout << buffer[10] << std::endl;\n                 ^      ~~\nprogram.cpp:5:5: note: array 'buffer' declared here\n    int buffer[10];\n    ^\n1 warning generated.\n"
+          "stderr": "program.cpp:6:9: warning: unused variable 'x' [-Wunused-variable]\n    int x;\n        ^\nprogram.cpp:10:18: warning: array index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\n    std::cout << buffer[10] << std::endl;\n                 ^      ~~\nprogram.cpp:5:5: note: array 'buffer' declared here\n    int buffer[10];\n    ^\n2 warnings generated.\n"
         },
         "run": {
           "ret": 0,
@@ -42,7 +42,9 @@
           "stderr": ""
         },
         "flags": [
-          "-O3"
+          "-O3",
+          "-Wall",
+          "-fsanitize=address"
         ],
         "source": "\n#include<iostream>\n\nint main(int argc, const char* argv[]) {\n    int buffer[10];\n    int x;\n    for(int ii = 1; ii <= 10; ii += 1) {\n        buffer[ii] = ii;\n    }\n    std::cout << buffer[10] << std::endl;\n}\n",
         "compiler": "clang++"
@@ -81,16 +83,17 @@
         "compile": {
           "ret": 0,
           "stdout": "",
-          "stderr": "program.cpp: In function \u2018int main(int, const char**)\u2019:\nprogram.cpp:7:20: warning: iteration 9 invokes undefined behavior [-Waggressive-loop-optimizations]\n         buffer[ii] = ii;\n         ~~~~~~~~~~~^~~~\nprogram.cpp:6:24: note: within this loop\n     for(int ii = 1; ii <= 10; ii += 1) {\n                     ~~~^~~~~\n"
+          "stderr": ""
         },
         "run": {
-          "ret": 0,
-          "stdout": "0\n",
-          "stderr": ""
+          "ret": 1,
+          "stdout": "",
+          "stderr": "=================================================================\n==4325==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffe2fddfdd8 at pc 0x0000004013bf bp 0x7ffe2fddfd80 sp 0x7ffe2fddfd70\nWRITE of size 4 at 0x7ffe2fddfdd8 thread T0\n    #0 0x4013be in main /home/kevin/cpp-debugging-interactive-unit/compiler/g++_2y7b1xi_/program.cpp:7\n    #1 0x7f5ec8d3a412 in __libc_start_main (/lib64/libc.so.6+0x24412)\n    #2 0x40148d in _start (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_2y7b1xi_/program+0x40148d)\n\nAddress 0x7ffe2fddfdd8 is located in stack of thread T0 at offset 72 in frame\n    #0 0x40111f in main /home/kevin/cpp-debugging-interactive-unit/compiler/g++_2y7b1xi_/program.cpp:3\n\n  This frame has 1 object(s):\n    [32, 72) 'buffer' <== Memory access at offset 72 overflows this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism or swapcontext\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-buffer-overflow /home/kevin/cpp-debugging-interactive-unit/compiler/g++_2y7b1xi_/program.cpp:7 in main\nShadow bytes around the buggy address:\n  0x100045fb3f60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3f70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3f90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3fa0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x100045fb3fb0: 00 00 f1 f1 f1 f1 00 00 00 00 00[f2]f2 f2 f3 f3\n  0x100045fb3fc0: f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3fd0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb3ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x100045fb4000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==4325==ABORTING\n"
         },
         "flags": [
           "-O3",
-          "-g"
+          "-g",
+          "-fsanitize=address"
         ],
         "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
         "compiler": "g++"
