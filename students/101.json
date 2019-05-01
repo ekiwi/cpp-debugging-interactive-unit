@@ -34,19 +34,19 @@
         "compile": {
           "ret": 0,
           "stdout": "",
-          "stderr": "\u001b[1mprogram.cpp:10:18: \u001b[0m\u001b[0;1;35mwarning: \u001b[0m\u001b[1marray index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\u001b[0m\n    std::cout << buffer[10] << std::endl;\n\u001b[0;1;32m                 ^      ~~\n\u001b[0m\u001b[1mprogram.cpp:5:5: \u001b[0m\u001b[0;1;30mnote: \u001b[0marray 'buffer' declared here\u001b[0m\n    int buffer[10];\n\u001b[0;1;32m    ^\n\u001b[0m1 warning generated.\n"
+          "stderr": ""
         },
         "run": {
           "ret": 0,
           "stdout": "10\n",
-          "stderr": ""
+          "stderr": "\u001b[1mprogram.cpp:8:18:\u001b[1m\u001b[31m runtime error: \u001b[1m\u001b[0m\u001b[1mindex 10 out of bounds for type 'int [10]'\u001b[1m\u001b[0m\n\u001b[1mprogram.cpp:8:20:\u001b[1m\u001b[31m runtime error: \u001b[1m\u001b[0m\u001b[1mstore to address 0x7ffd23e08938 with insufficient space for an object of type 'int'\u001b[1m\u001b[0m\n\u001b[1m0x7ffd23e08938:\u001b[1m\u001b[30m note: \u001b[1m\u001b[0mpointer points here\u001b[1m\u001b[0m\n 09 00 00 00  e0 10 40 00 0a 00 00 00  30 8a e0 23 fd 7f 00 00  00 00 00 00 00 00 00 00  b0 14 40 00\n\u001b[1m\u001b[32m              ^ \u001b[1m\u001b[0m\n\u001b[1mprogram.cpp:10:27:\u001b[1m\u001b[31m runtime error: \u001b[1m\u001b[0m\u001b[1mindex 10 out of bounds for type 'int [10]'\u001b[1m\u001b[0m\n\u001b[1mprogram.cpp:10:27:\u001b[1m\u001b[31m runtime error: \u001b[1m\u001b[0m\u001b[1mload of address 0x7ffd23e08938 with insufficient space for an object of type 'int'\u001b[1m\u001b[0m\n\u001b[1m0x7ffd23e08938:\u001b[1m\u001b[30m note: \u001b[1m\u001b[0mpointer points here\u001b[1m\u001b[0m\n 09 00 00 00  0a 00 00 00 0b 00 00 00  30 8a e0 23 fd 7f 00 00  00 00 00 00 00 00 00 00  b0 14 40 00\n\u001b[1m\u001b[32m              ^ \u001b[1m\u001b[0m\n"
         },
         "flags": [
           "-O0",
-          "-fsanitize=leak"
+          "-fsanitize=undefined"
         ],
         "source": "\n#include<iostream>\n\nint main(int argc, const char* argv[]) {\n    int buffer[10];\n    int x;\n    for(int ii = 1; ii <= 10; ii += 1) {\n        buffer[ii] = ii;\n    }\n    std::cout << buffer[10] << std::endl;\n}\n",
-        "compiler": "clang++"
+        "compiler": "g++"
       }
     ],
     [
