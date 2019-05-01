@@ -151,8 +151,10 @@ class PathId:
 		return self.progress < other.progress
 
 def selected_flags(rr):
+	def is_select_option(flag: str) -> bool:
+		return flag.startswith('-O') or flag.startswith('-fsanitize') or flag.startswith('-fno-sanitize')
 	if rr is None:
-		flags = ['-O3']
+		flags = ['-O3', '-fno-sanitize=all']
 		compiler = 'g++'
 	else:
 		flags = rr['flags']
@@ -160,7 +162,7 @@ def selected_flags(rr):
 	dd = {compiler: 'selected=""'}
 	#print(flags)
 	for flag in flags:
-		dd[flag] = 'selected=""' if flag.startswith('-O') else 'checked=""'
+		dd[flag] = 'selected=""' if is_select_option(flag) else 'checked=""'
 	#print(dd)
 	return dd
 
@@ -236,6 +238,7 @@ class App:
 		}
 
 	def run2html(self, run):
+		if run is None or len(run) < 1: return run
 		rr = dict(run)
 		rr['compile'] = self.ret2html(run['compile'])
 		rr['run'] = self.ret2html(run['run'])
@@ -268,10 +271,10 @@ class App:
 		if isinstance(step, RunStep): main_src = part.program
 		else:                         main_src = content['code'][0]
 		compiler = content['compiler'][0]
-		flags = [content[f'flag{ii}'][0] for ii in range(10) if f'flag{ii}' in content]
+		flags = content.get('flag', [])
 		rr = self.comp.compile_and_run(compiler=compiler, flags=flags, source=main_src)
-		rr.update({'flags': flags, 'source': main_src, 'compiler': compiler})
 		if rr is None: return Error(f'Invalid compile and run command: {content}')
+		rr.update({'flags': flags, 'source': main_src, 'compiler': compiler})
 		step_id = (part.uid, step.uid)
 		student.runs[step_id] = rr
 		student.save(self.student_dir)

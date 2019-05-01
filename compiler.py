@@ -10,7 +10,12 @@ def ret_to_dict(ret):
 
 class Compiler:
 	def __init__(self, working_dir):
-		self.allowed_flags = [f'-O{ii}' for ii in range(4)] + ['-g', '-Wall', '-fsanitize=address']
+		self.allowed_flags = [f'-O{ii}' for ii in range(4)]
+		self.allowed_flags += ['-g', '-Wall']
+		self.allowed_flags += [f'-fsanitize={name}' for name in ['address', 'thread', 'memory', 'undefined', 'leak']]
+		self.allowed_flags += ['-fno-sanitize=all']
+		# https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
+		self.options = {f'{key}_OPTIONS': "color=always" for key in ['ASAN', 'TSAN', 'MSAN', 'LSAN', 'UBSAN']}
 		self.working_dir = os.path.abspath(working_dir)
 		self.versions = self.test()
 
@@ -46,9 +51,12 @@ class Compiler:
 
 	def compile(self, compiler, flags, source, exe):
 		assert isinstance(flags, list)
-		if compiler not in {'g++', 'clang++'} : return None, None
+		if compiler not in {'g++', 'clang++'}:
+			print(f"ERROR: invalid compiler: {compiler}")
+			return None, None
 		for flag in flags:
 			if flag not in self.allowed_flags:
+				print(f"ERROR: invalid flag: {flag}")
 				return None, None
 		# get working directory
 		cwd = tempfile.mkdtemp(prefix=compiler+'_', dir=self.working_dir)
@@ -65,11 +73,10 @@ class Compiler:
 		return cwd, ret_to_dict(r)
 
 	def run_program(self, cwd, exe):
-		options = {'ASAN_OPTIONS': "color=always"}
 		PIPE = subprocess.PIPE
 		cmd = [os.path.join(cwd, exe)]
 		my_env = os.environ.copy()
-		my_env.update(options)
+		my_env.update(self.options)
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE, env=my_env)
 		return ret
 
