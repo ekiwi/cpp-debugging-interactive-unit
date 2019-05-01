@@ -57,14 +57,14 @@
         "compile": {
           "ret": 1,
           "stdout": "",
-          "stderr": "program.cpp: In function \u2018int main(int, const char**)\u2019:\nprogram.cpp:6:20: error: \u2018ii\u2019 was not declared in this scope\n     for(int i = 1; ii <= 10; ii += 1) {\n                    ^~\nprogram.cpp:6:20: note: suggested alternative: \u2018i\u2019\n     for(int i = 1; ii <= 10; ii += 1) {\n                    ^~\n                    i\n"
+          "stderr": "\u001b[1mprogram.cpp:6:20: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n    for(int i = 1; ii <= 10; ii += 1) {\n\u001b[0;1;32m                   ^\n\u001b[0m\u001b[1mprogram.cpp:6:30: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n    for(int i = 1; ii <= 10; ii += 1) {\n\u001b[0;1;32m                             ^\n\u001b[0m\u001b[1mprogram.cpp:7:16: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n        buffer[ii] = ii;\n\u001b[0;1;32m               ^\n\u001b[0m\u001b[1mprogram.cpp:7:22: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n        buffer[ii] = ii;\n\u001b[0;1;32m                     ^\n\u001b[0m\u001b[1mprogram.cpp:9:18: \u001b[0m\u001b[0;1;35mwarning: \u001b[0m\u001b[1marray index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\u001b[0m\n    std::cout << buffer[10] << std::endl;\n\u001b[0;1;32m                 ^      ~~\n\u001b[0m\u001b[1mprogram.cpp:4:5: \u001b[0m\u001b[0;1;30mnote: \u001b[0marray 'buffer' declared here\u001b[0m\n    int buffer[10];\n\u001b[0;1;32m    ^\n\u001b[0m1 warning and 4 errors generated.\n"
         },
         "run": {},
         "flags": [
           "-O3"
         ],
         "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int i = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
-        "compiler": "g++"
+        "compiler": "clang++"
       }
     ]
   ]

@@ -11,6 +11,7 @@ from functools import reduce, total_ordering
 import operator
 from jinja2 import Template
 from compiler import Compiler
+from ansi2html import Ansi2HTMLConverter
 
 def assert_uids(items):
 	uids = {s.uid for s in items}
@@ -181,6 +182,8 @@ class App:
 		self.student_dir = student_dir
 		# compiler
 		self.comp = Compiler(working_dir=compiler_dir)
+		# converter
+		self.conv = Ansi2HTMLConverter()
 
 	# load
 
@@ -221,6 +224,24 @@ class App:
 		step = part.steps[path_id.step]
 		return Success((student, part, step))
 
+	def ret2html(self, ret):
+		if len(ret) == 0: return ret
+		#print(f"ret2html({ret})")
+		def escape(out):
+			return self.conv.convert(out, full=False)
+		return {
+			'ret': ret['ret'],
+			'stdout': escape(ret['stdout']),
+			'stderr': escape(ret['stderr']),
+		}
+
+	def run2html(self, run):
+		rr = dict(run)
+		rr['compile'] = self.ret2html(run['compile'])
+		rr['run'] = self.ret2html(run['run'])
+		return rr
+
+
 	def view(self, student_id, path_list):
 		ret = self.parse_student_path(student_id, path_list)
 		if is_error(ret): return ret
@@ -229,7 +250,7 @@ class App:
 		dd = {'student_id': student_id,
 			  'part': part.to_dict(),
 			  'step': step.to_dict(),
-			  'run': rr,
+			  'run': self.run2html(rr),
 			  'flags': selected_flags(rr),
 			  }
 		return Success(self.app_html.render(dd))

@@ -106,11 +106,11 @@
     {%- if step.kind in ['Run', 'Modify'] and run is not none %}
     <div class="row">
       <h2>Compiler Output</h2>
-      <div id="compiler-out" class="output">{{ run.compile.stderr | escape }}<br/>{{ run.compile.stdout | escape }}</div>
+      <div id="compiler-out" class="output">{{ run.compile.stderr }}<br/>{{ run.compile.stdout }}</div>
     </div>
     <div class="row">
       <h2>Program Output</h2>
-      <div id="program-out" class="output">{{ run.run.stdout | escape }}<br/>{{ run.run.stderr | escape }}</div>
+      <div id="program-out" class="output">{{ run.run.stdout }}<br/>{{ run.run.stderr }}</div>
     </div>
     <div class="row">
       <form action="{{ step.uid }}/next" method="post">

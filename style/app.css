@@ -29,11 +29,31 @@ div#instruction div { width: 60%; }
 /* compiler/program output */
 div.output { height: 250px; padding: 5px; padding-left: 15px;
              background: black; color: white; overflow: scroll;
-             font-family: monospace; font-size: 12pt; }
+             font-family: monospace; font-size: 12pt;
+             white-space: pre-wrap; }
 
 /* headings */
 div.row h2 { display: inline-block; padding: 7px 25px; width: 100%;
              margin-bottom: 6px; color: #0af; border: 2px solid #0af;
              font-size: 20px; }
 
-
+/* ansi */
+.ansi1 { font-weight: bold; }
+.ansi2 { font-weight: lighter; }
+.ansi3 { font-style: italic; }
+.ansi4 { text-decoration: underline; }
+.ansi30 { color: #000316; }
+.ansi31 { color: #aa0000; }
+.ansi32 { color: #00aa00; }
+.ansi33 { color: #aa5500; }
+.ansi34 { color: #0000aa; }
+.ansi35 { color: #E850A8; }
+.ansi36 { color: #00aaaa; }
+.ansi37 { color: #F5F1DE; }
+.ansi41 { background-color: #aa0000; }
+.ansi42 { background-color: #00aa00; }
+.ansi43 { background-color: #aa5500; }
+.ansi44 { background-color: #0000aa; }
+.ansi45 { background-color: #E850A8; }
+.ansi46 { background-color: #00aaaa; }
+.ansi47 { background-color: #F5F1DE; }

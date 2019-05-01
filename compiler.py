@@ -36,7 +36,10 @@ class Compiler:
 		if cwd is None: cwd = self.working_dir
 		assert os.path.isdir(cwd)
 		if not isinstance(args, list): args = [args]
-		cmd = [compiler] + args
+		if compiler == 'g++':
+			cmd = [compiler, "-fdiagnostics-color"] + args
+		else:
+			cmd = [compiler, "-fcolor-diagnostics"] + args
 		PIPE=subprocess.PIPE
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
 		return ret
