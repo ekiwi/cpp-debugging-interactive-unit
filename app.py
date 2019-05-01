@@ -75,12 +75,12 @@ def short_demo() -> List[Part]:
 						 "Please take a moment to read through the source code of the program provided below. What do you think is the program intended to do? Put your thoughts into the text box below.",
 						 "What do you think the program output will be?"),
 			QuestionStep(3, "What are potential bugs?", "", ""),
-			RunStep(5, "Try different compilers and flags", "TODO: better guidance"),
-			DoneStep(8, "Done", "Congratulations, you are done! Once you are ready to move on to debug the next program, click 'next'."),
+			RunStep(4, "Try different compilers and flags", "TODO: better guidance"),
+			DoneStep(5, "Done", "Congratulations, you are done! Once you are ready to move on to debug the next program, click 'next'."),
 		]),
 			Part(2, "Program 2", p2, steps=[RunStep(1, "", "")]),
 			Part(3, "Program 3", p3, steps=[RunStep(1, "", "")]),
-			Part(4, "Program 4", p4, steps=[RunStep(1, "", ""), DoneStep("Done", "End of the demo.")]),
+			Part(4, "Program 4", p4, steps=[RunStep(1, "", ""), DoneStep(2, "Done", "End of the demo.")]),
 			]
 
 
