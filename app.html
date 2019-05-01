@@ -135,25 +135,6 @@
     var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
     CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
 
-    // tab switch function
-    function tab(el) {
-      var name = "content" + el.id.slice(-1)
-      var row = el.parentElement.parentElement;
-      row.childNodes.forEach(function(node){
-        if(node.tagName == "DIV") {
-          if(node.id == name) { node.style.display = "block"; }
-          else { node.style.display = "none"; }
-        }
-      });
-    }
-    // hide all tabs
-    document.querySelectorAll(".tabs div.content").forEach(function(node) {
-      node.style.display = "none";
-    });
-    // display program output
-    tab(document.getElementById("tab3"));
-    tab(document.getElementById("tab4"));
-
     // copy code before submitting
     function copyCode(form) {
       var ta = form.querySelector('#code').textContent = myCodeMirror.getValue()
