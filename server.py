@@ -168,6 +168,9 @@ def selected_flags(rr):
 class App:
 	def __init__(self, parts: List[Part], student_dir, compiler_dir):
 		assert_uids(parts)
+		self.part_to_pos = {p: ii for ii, p in enumerate(parts)}
+		self.pos_to_part = parts
+		self.part_count = len(parts)
 		self.parts = {p.uid: p for p in parts}
 		self.students = {}
 		# make uids comparable
@@ -279,13 +282,23 @@ class App:
 		student.save(self.student_dir)
 		return Redirect('/'.join(['', student.uid, part.uid, step.uid]))
 
+	def next_part(self, part):
+		next_pos = self.part_to_pos.get(part, self.part_count - 1) + 1
+		if next_pos >= self.part_count: return None
+		return self.pos_to_part[next_pos]
+
 	def next(self, student, part, step, content):
 		# find next step and update student progress
 		next_step = part.next_step(step)
 		if next_step is None:
-			return Error("Done. TODO: implement done state")
-		student.progress = self.uid_progress[(part.uid, next_step.uid)]
-		return Redirect('/'.join(['', student.uid, part.uid, next_step.uid]))
+			next_part = self.next_part(part)
+			if next_part is None:
+				return Error("Done. No next step.")
+			next_step = next_part.pos_to_step[0]
+		else:
+			next_part = part
+		student.progress = self.uid_progress[(next_part.uid, next_step.uid)]
+		return Redirect('/'.join(['', student.uid, next_part.uid, next_step.uid]))
 
 
 	def answer(self, student, part, step, content):

@@ -106,7 +106,7 @@
       {%- endif %}
     {%- endif %}
 
-    {%- if step.kind in ['Intro'] %}
+    {%- if step.kind in ['Intro', 'Done'] %}
     <div class="row">
       <form action="{{ step.uid }}/next" method="post">
         <input class="button" type="submit" value="Next" />
