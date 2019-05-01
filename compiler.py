@@ -49,7 +49,7 @@ class Compiler:
 		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
 		return ret
 
-	def compile(self, compiler, flags, source, exe):
+	def compile(self, compiler, flags, source: str, exe: str):
 		assert isinstance(flags, list)
 		if compiler not in {'g++', 'clang++'}:
 			print(f"ERROR: invalid compiler: {compiler}")

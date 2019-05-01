@@ -18,11 +18,6 @@ int main(int argc, const char* argv[]) {
 }
 """
 
-mk1 = """
-program: main.c
-	clang main.c -o program
-"""
-
 p2 = """
 #include<iostream>
 
@@ -79,7 +74,7 @@ if __name__ == '__main__':
 	code_mirror = 'codemirror-5.45.0'
 	lib_dirs = [os.path.join('ext', code_mirror, dd) for dd in ['lib', 'mode/clike']] + ['style']
 	app = App([
-		Part(1, name="Program 1", program=p1, makefile=mk1, steps=[
+		Part(1, name="Program 1", program=p1, steps=[
 			IntroStep(1, "Intro", "Look at the program. It has a bug. In the following steps we will first form a hypothesis and then try out various debugging techniques in order to find the problem."),
 			QuestionStep(2, "What should the program do?",
 						 "Please take a moment to read through the source code of the program provided below. What do you think is the program intended to do? Put your thoughts into the text box below.",

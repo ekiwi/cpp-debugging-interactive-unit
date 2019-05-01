@@ -60,12 +60,11 @@ class ModifyStep(Step):
 
 
 class Part:
-	def __init__(self, uid: int, name: str, program: str, makefile: str, steps: List[Step]):
+	def __init__(self, uid: int, name: str, program: str, steps: List[Step]):
 		assert_uids(steps)
 		self.uid = f'program{uid}'
 		self.name = name
-		self.program = program
-		self.makefile = makefile
+		self.program = program.lstrip()
 
 		self.step_to_pos = {s: ii for ii, s in enumerate(steps)}
 		self.pos_to_step = steps
@@ -73,7 +72,7 @@ class Part:
 		self.steps = {s.uid: s for s in steps}
 
 	def to_dict(self) -> dict:
-		return {'uid': self.uid, 'name': self.name, 'program': self.program, 'makefile': self.makefile,
+		return {'uid': self.uid, 'name': self.name, 'program': self.program,
 				'steps': [(s.name, s.uid) for s in self.steps.values()] }
 
 	def next_step(self, step):
