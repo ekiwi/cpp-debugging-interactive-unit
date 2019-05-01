@@ -23,12 +23,12 @@ class Compiler:
 		assert os.path.isdir(self.working_dir), f"{self.working_dir} does not exist"
 
 		# ensure compiler is available
-		versions = []
+		versions = {}
 		for comp in ['g++', 'clang++']:
 			r = self._run(comp, '--version')
 			assert r.returncode == 0, f"compiler {comp} not found: {r.stderr}"
 			name, version = re.match(r'([a-zA-Z\+\(\) ]+)([\d\.]+)', r.stdout.decode('utf-8')).groups()
-			versions.append(version)
+			versions[comp] = version
 		return versions
 
 	def _run(self, compiler, args, cwd=None):

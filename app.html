@@ -39,8 +39,8 @@
     <div class="row">
       <form action="{{ step.uid }}/run" method="post" onsubmit="copyCode(this)">
         <select name="compiler">
-          <option value="g++" {{ flags['g++'] }}>g++</option>
-          <option value="clang++" {{ flags['clang++'] }}>clang++</option>
+          <option value="g++" {{ flags['g++'] }}>g++ ({{ version['g++'] }})</option>
+          <option value="clang++" {{ flags['clang++'] }}>clang++ ({{ version['clang++'] }})</option>
         </select>
         <select name="flag1">
           <option value="-O0" {{ flags['-O0'] }}>-O0</option>

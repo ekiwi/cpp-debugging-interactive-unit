@@ -158,10 +158,10 @@ def selected_flags(rr):
 		flags = rr['flags']
 		compiler = rr['compiler']
 	dd = {compiler: 'selected=""'}
-	print(flags)
+	#print(flags)
 	for flag in flags:
 		dd[flag] = 'selected=""' if flag.startswith('-O') else 'checked=""'
-	print(dd)
+	#print(dd)
 	return dd
 
 class App:
@@ -252,6 +252,7 @@ class App:
 			  'step': step.to_dict(),
 			  'run': self.run2html(rr),
 			  'flags': selected_flags(rr),
+			  'version': self.comp.versions,
 			  }
 		return Success(self.app_html.render(dd))
 
@@ -339,7 +340,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 					#content = {a:b for a,b in (line.split(" ") for line in raw_content.split('\n') if len(line) > 1)}
 		except Exception as ee:
 			return Error(str(ee))
-		print("POST", content)
+		#print("POST", content)
 		return self.handle_POST(app=self.server.app, pp=self.path.split('/')[1:], content=content)
 
 	def do_POST(self):

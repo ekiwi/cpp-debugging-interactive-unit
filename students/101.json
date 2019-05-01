@@ -55,16 +55,21 @@
       ],
       {
         "compile": {
+          "ret": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "run": {
           "ret": 1,
           "stdout": "",
-          "stderr": "\u001b[1mprogram.cpp:6:20: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n    for(int i = 1; ii <= 10; ii += 1) {\n\u001b[0;1;32m                   ^\n\u001b[0m\u001b[1mprogram.cpp:6:30: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n    for(int i = 1; ii <= 10; ii += 1) {\n\u001b[0;1;32m                             ^\n\u001b[0m\u001b[1mprogram.cpp:7:16: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n        buffer[ii] = ii;\n\u001b[0;1;32m               ^\n\u001b[0m\u001b[1mprogram.cpp:7:22: \u001b[0m\u001b[0;1;31merror: \u001b[0m\u001b[1muse of undeclared identifier 'ii'\u001b[0m\n        buffer[ii] = ii;\n\u001b[0;1;32m                     ^\n\u001b[0m\u001b[1mprogram.cpp:9:18: \u001b[0m\u001b[0;1;35mwarning: \u001b[0m\u001b[1marray index 10 is past the end of the array (which contains 10 elements) [-Warray-bounds]\u001b[0m\n    std::cout << buffer[10] << std::endl;\n\u001b[0;1;32m                 ^      ~~\n\u001b[0m\u001b[1mprogram.cpp:4:5: \u001b[0m\u001b[0;1;30mnote: \u001b[0marray 'buffer' declared here\u001b[0m\n    int buffer[10];\n\u001b[0;1;32m    ^\n\u001b[0m1 warning and 4 errors generated.\n"
+          "stderr": "=================================================================\n==12495==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x7ffe13d2b8c8 at pc 0x0000004013a6 bp 0x7ffe13d2b860 sp 0x7ffe13d2b850\nWRITE of size 4 at 0x7ffe13d2b8c8 thread T0\n    #0 0x4013a5 in main (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_412kr4fb/program+0x4013a5)\n    #1 0x7f2052736f32 in __libc_start_main (/lib64/libc.so.6+0x23f32)\n    #2 0x40147d in _start (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_412kr4fb/program+0x40147d)\n\nAddress 0x7ffe13d2b8c8 is located in stack of thread T0 at offset 88 in frame\n    #0 0x40111f in main (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_412kr4fb/program+0x40111f)\n\n  This frame has 1 object(s):\n    [48, 88) 'buffer' (line 4) <== Memory access at offset 88 overflows this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-buffer-overflow (/home/kevin/cpp-debugging-interactive-unit/compiler/g++_412kr4fb/program+0x4013a5) in main\nShadow bytes around the buggy address:\n  0x10004279d6c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d6d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d6e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d6f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d700: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1\n=>0x10004279d710: f1 f1 f1 f1 00 00 00 00 00[f3]f3 f3 f3 f3 00 00\n  0x10004279d720: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d730: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d740: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d750: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x10004279d760: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n  Shadow gap:              cc\n==12495==ABORTING\n"
         },
-        "run": {},
         "flags": [
-          "-O3"
+          "-O3",
+          "-fsanitize=address"
         ],
-        "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int i = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
-        "compiler": "clang++"
+        "source": "#include<iostream>\r\n\r\nint main(int argc, const char* argv[]) {\r\n    int buffer[10];\r\n    int x;\r\n    for(int ii = 1; ii <= 10; ii += 1) {\r\n        buffer[ii] = ii;\r\n    }\r\n    std::cout << buffer[10] << std::endl;\r\n}\r\n",
+        "compiler": "g++"
       }
     ]
   ]
