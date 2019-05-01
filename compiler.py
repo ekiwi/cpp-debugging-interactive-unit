@@ -64,6 +64,15 @@ class Compiler:
 			assert os.path.isfile(os.path.join(cwd, exe))
 		return cwd, ret_to_dict(r)
 
+	def run_program(self, cwd, exe):
+		options = {'ASAN_OPTIONS': "color=always"}
+		PIPE = subprocess.PIPE
+		cmd = [os.path.join(cwd, exe)]
+		my_env = os.environ.copy()
+		my_env.update(options)
+		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE, env=my_env)
+		return ret
+
 	def compile_and_run(self, compiler, flags, source):
 		#print(f'compile_and_run({compiler}, {flags}, {source})')
 		exe = 'program'
@@ -71,8 +80,5 @@ class Compiler:
 		if cc is None: return None
 		if cc['ret'] != 0:
 			return {'compile': cc, 'run': {}}
-		# run program
-		PIPE = subprocess.PIPE
-		cmd = [os.path.join(cwd, exe)]
-		ret = subprocess.run(cmd, cwd=cwd, stderr=PIPE, stdout=PIPE)
+		ret = self.run_program(cwd=cwd, exe=exe)
 		return {'compile': cc, 'run': ret_to_dict(ret)}
