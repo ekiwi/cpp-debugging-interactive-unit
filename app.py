@@ -106,7 +106,34 @@ int main(int argc, char **argv) {
 }
 """
 
+use_after_free_intro = """
+In C and C++ the programmer is responsible for allocating and deallocating memory on the heap.
+Once memory has been deallocated using <b>free</b> or <b>delete</b>, it can no longer be used.
+However, a failure to follow these rules won't be caught by the compiler which will happily compile the code
+shown bellow.<br/>
+"""
+# However, the bug can be automatically detected when the program is run using a <b>sanitizer</b>.
 
+# src: https://github.com/google/sanitizers/wiki/AddressSanitizerExampleStackOutOfBounds
+stack_buffer_overflow_program = """
+int main(int argc, char **argv) {
+  int stack_array[100];
+  stack_array[1] = 0;
+  return stack_array[argc + 100];  // BOOM
+}
+"""
+
+buffer_overflow_intro = """
+In C and C++ you are able to deal with a sequence of elements of the same type using arrays.
+Arrays can be allocated using <b>malloc</b>, <b>new []</b> or statically/on the stack using the <b>T name[LEN]</b> pattern.<br/>
+Whether they are statically or dynamically allocated, arrays always have a specific size and when indexing into an array,
+the index must be >= 0 and < than the length of the array.
+However, for performance reasons, that restriction is not enforced by the compiler. Instead your code has to make sure
+to index into arrays correctly.<br/>
+When your code indexes beyond the array, it could crash, data could be silently corrupted or nothing might happen.
+Thus these errors are hard to debug. Fortunately your compiler can help you automatically find those bugs.
+
+"""
 
 """
 Notes
@@ -124,6 +151,32 @@ Bug Classes:
 * Uninitialized Pointer [memory]
 
 """
+
+def bug_part(id: int, name: str, program: str, intro: str) -> Part:
+	name_i = f"<i>{name}</i>"
+	return Part(id, name, program=program, steps=[
+		TextStep(1, "", intro, True),
+		QuestionStep(2, "", f"""
+				Take a minute to try and understand the program.<br/>
+				While the {name_i} error is easy to spot in this small example program,
+				there is no compiler that will warn you (during compile time) about {name_i} errors as they are impossible
+				to detect in the general case.<br/>
+				What do you think might be the reason for this?
+				
+		""", f"Why are {name} bugs impossible for the compiler to detect?"),
+		RunStep(3, "", """
+		Now you can compile and run the program using the <b>Compile &amp; Run</b> button below.<br/>
+		Take a minute to try out different compilers and compiler flags and observe the results.<br/>
+		Are you able to detect the bug automatically?
+ 		"""),
+		QuestionStep(4, "", f"""
+		Please summarize your findings.<br/>
+		Which compiler flags worked in order to detect the {name_i} bug?<br/>
+		When was it detected? During compilation or during execution?<br/>
+		Were there any differences between the different compilers?
+		""", "Please summarize your findings:")
+	])
+
 def complete_unit() -> List[Part]:
 	intro = Part(1, "Your Compiler as a Bug Finding Tool", "",[
 		TextStep(1, "Introduction",
@@ -138,11 +191,12 @@ def complete_unit() -> List[Part]:
 		TextStep(3, "Start", "Once you are ready to get started, click <b>next</b>.",  False)
 	])
 
-	bugs = Part(2, "Use After Free", program=use_after_free_program, steps=[
-		TextStep(1, "Intro", "lol", True)
-	])
 
-	return [intro, bugs]
+	# Try to come up with an explanation of why the compiler cannot detect bugs like this in the general case.
+	bugs = [bug_part(2, "Use After Free", use_after_free_program, use_after_free_intro),
+			bug_part(3, "Buffer Overflow", stack_buffer_overflow_program, buffer_overflow_intro)]
+
+	return [intro]+bugs
 
 if __name__ == '__main__':
 	address = ("localhost", 12345)

@@ -12,7 +12,7 @@
   </head>
   <body>
     <header>
-      <h1>{{ part.name | escape }} - {{ step.name | escape }}</h1>
+      <h1>{{ part.name | escape }}{{ "" if step.name | length < 1 else " - " + step.name | escape }}</h1>
     </header>
 
     <div class="row">
