@@ -19,24 +19,21 @@ def assert_uids(items):
 
 
 class Step:
-	def __init__(self, uid: int, name: str, instructions: str):
+	def __init__(self, uid: int, name: str, instructions: str, show_program: bool = True):
 		self.uid = f'step{uid}'
 		self.name = name
 		self.instructions = instructions
+		self.show_program = show_program
 
 	def to_dict(self) -> dict:
 		name = self.__class__.__name__
 		assert name.endswith('Step')
 		kind = name[:-4]
-		return {'uid': self.uid, 'instructions': self.instructions, 'name': self.name, 'kind': kind}
+		return {'uid': self.uid, 'instructions': self.instructions, 'name': self.name, 'kind': kind, 'show_program': self.show_program}
 
-class IntroStep(Step):
-	def __init__(self, uid: int, name: str, instructions: str):
-		super().__init__(uid=uid, name=name, instructions=instructions)
-
-class DoneStep(Step):
-	def __init__(self, uid: int, name: str, instructions: str):
-		super().__init__(uid=uid, name=name, instructions=instructions)
+class TextStep(Step):
+	def __init__(self, uid: int, name: str, instructions: str, show_program: bool):
+		super().__init__(uid=uid, name=name, instructions=instructions, show_program=show_program)
 
 class QuestionStep(Step):
 	def __init__(self, uid: int, name: str, instructions: str, question: str):

@@ -70,13 +70,13 @@ app_dir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
 def short_demo() -> List[Part]:
 	return [Part(1, name="Program 1", program=p1, steps=[
-			IntroStep(1, "Intro", "Explain idea to student."),
+			TextStep(1, "Intro", "Explain idea to student.", False),
 			QuestionStep(2, "What should the program do?",
 						 "Please take a moment to read through the source code of the program provided below. What do you think is the program intended to do? Put your thoughts into the text box below.",
 						 "What do you think the program output will be?"),
 			QuestionStep(3, "What are potential bugs?", "", ""),
 			RunStep(4, "Try different compilers and flags", "TODO: better guidance"),
-			DoneStep(5, "Done", "Congratulations, you are done! Once you are ready to move on to debug the next program, click 'next'."),
+			TextStep(5, "Done", "Congratulations, you are done! Once you are ready to move on to debug the next program, click 'next'.", False),
 		]),
 			Part(2, "Program 2", p2, steps=[RunStep(1, "", "")]),
 			Part(3, "Program 3", p3, steps=[RunStep(1, "", "")]),
@@ -126,43 +126,32 @@ Bug Classes:
 """
 def complete_unit() -> List[Part]:
 	intro = Part(1, "Your Compiler as a Bug Finding Tool", "",[
-		IntroStep(1, "Introduction",
+		TextStep(1, "Introduction",
 				  "While developing software in C++ you might have struggled with your program crashing unexpectedly." +
 				  "Once that happens it can be hard to understand what exactly causes it to fail." +
-				  "This interactive online tutorial will help you learn about how your compiler can support you in debugging your programs."),
-		IntroStep(2, "Bug Classes",
+				  "This interactive online tutorial will help you learn about how your compiler can support you in debugging your programs.", False),
+		TextStep(2, "Bug Classes",
 				  "Over the course of this tutorial we will teach you how to identify and fix various kinds of bugs:\n"+
 				  "* Use After Free\n" +
 				  "* Use After Return\n" +
-				  "* Buffer Overflows\n"),
-		DoneStep(3, "Start", "Once you are ready to get started, click 'next'.")
+				  "* Buffer Overflows\n", False),
+		TextStep(3, "Start", "Once you are ready to get started, click 'next'.",  False)
 	])
 
 	bugs = Part(2, "Use After Free", program=use_after_free_program, steps=[
-		IntroStep(1, )
+		TextStep(1, "Intro", "lol", True)
 	])
 
-
-	return [Part(1, name="Program 1", program=p1, steps=[
-			IntroStep(1, "Intro", "Look at the program. It has a bug. In the following steps we will first form a hypothesis and then try out various debugging techniques in order to find the problem."),
-			QuestionStep(2, "What should the program do?",
-						 "Please take a moment to read through the source code of the program provided below. What do you think is the program intended to do? Put your thoughts into the text box below.",
-						 "What do you think the program output will be?"),
-			QuestionStep(3, "What are potential bugs?", "", ""),
-			QuestionStep(4, "What would you do to debug?", "", ""),
-			RunStep(5, "Run the program", ""),
-			ModifyStep(6, "Try Debug Technique 1", ""),
-			ModifyStep(7, "Fix Program", ""),
-			DoneStep(8, "Done", "Congratulations, you are done! Once you are ready to move on to debug the next program, click 'next'."),
-		])]
+	return [intro, bugs]
 
 if __name__ == '__main__':
 	address = ("localhost", 12345)
-	student_dir = 'students_demo'
+	#student_dir = 'students_demo'
+	student_dir = 'students'
+	unit = complete_unit()
 	compiler_dir = 'compiler'
 	code_mirror = 'codemirror-5.45.0'
 	lib_dirs = [os.path.join('ext', code_mirror, dd) for dd in ['lib', 'mode/clike']] + ['style']
-	app = App(short_demo(),
-	student_dir=student_dir, compiler_dir=compiler_dir)
+	app = App(unit,	student_dir=student_dir, compiler_dir=compiler_dir)
 	serv = Server(address=address, app=app, student_dir=student_dir, lib_dirs=lib_dirs, app_dir=app_dir)
 	serv.serve_forever()
