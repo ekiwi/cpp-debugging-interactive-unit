@@ -84,6 +84,14 @@ def short_demo() -> List[Part]:
 			]
 
 
+# src: https://github.com/google/sanitizers/wiki/AddressSanitizerExampleUseAfterFree
+use_after_free_program = """
+int main(int argc, char **argv) {
+  int *array = new int[100];
+  delete [] array;
+  return array[argc];  // BOOM
+}
+"""
 
 """
 Notes
@@ -107,10 +115,17 @@ def complete_unit() -> List[Part]:
 				  "While developing software in C++ you might have struggled with your program crashing unexpectedly." +
 				  "Once that happens it can be hard to understand what exactly causes it to fail." +
 				  "This interactive online tutorial will help you learn about how your compiler can support you in debugging your programs."),
-		DoneStep(2, "Start", "Once you are ready to get started, click 'next'.")
+		IntroStep(2, "Bug Classes",
+				  "Over the course of this tutorial we will teach you how to identify and fix various kinds of bugs:\n"+
+				  "* Use After Free\n" +
+				  "* Use After Return\n" +
+				  "* Buffer Overflows\n"),
+		DoneStep(3, "Start", "Once you are ready to get started, click 'next'.")
 	])
 
-	bugs = Part(2, "")
+	bugs = Part(2, "Use After Free", program=use_after_free_program, steps=[
+		IntroStep(1, )
+	])
 
 
 	return [Part(1, name="Program 1", program=p1, steps=[
