@@ -14,7 +14,8 @@ nav a.active {color: black; font-weight: bold; }
 div#program { border: 1px #666 solid; }
 
 /* instructions */
-div#instruction div { width: 60%; }
+#instructions { width: 90%;
+                font-size: 15pt; }
 
 /*  */
 .button { display: block; margin-top: 10px; border: 1px solid black; }

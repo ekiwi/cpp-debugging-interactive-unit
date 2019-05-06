@@ -127,15 +127,15 @@ Bug Classes:
 def complete_unit() -> List[Part]:
 	intro = Part(1, "Your Compiler as a Bug Finding Tool", "",[
 		TextStep(1, "Introduction",
-				  "While developing software in C++ you might have struggled with your program crashing unexpectedly." +
-				  "Once that happens it can be hard to understand what exactly causes it to fail." +
+				  "While developing software in C++ you might have struggled with your program crashing unexpectedly. " +
+				  "Once that happens it can be hard to understand what exactly causes it to fail. " +
 				  "This interactive online tutorial will help you learn about how your compiler can support you in debugging your programs.", False),
 		TextStep(2, "Bug Classes",
-				  "Over the course of this tutorial we will teach you how to identify and fix various kinds of bugs:\n"+
-				  "* Use After Free\n" +
-				  "* Use After Return\n" +
-				  "* Buffer Overflows\n", False),
-		TextStep(3, "Start", "Once you are ready to get started, click 'next'.",  False)
+				  "Over the course of this tutorial we will teach you how to identify and fix various kinds of bugs:<br/><ul>"+
+				  "<li>Use After Free</li>" +
+				  "<li>Use After Return</li>" +
+				  "<li>Buffer Overflows</li>" + "</ul>", False),
+		TextStep(3, "Start", "Once you are ready to get started, click <b>next</b>.",  False)
 	])
 
 	bugs = Part(2, "Use After Free", program=use_after_free_program, steps=[

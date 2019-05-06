@@ -15,10 +15,10 @@
       <h1>{{ part.name | escape }} - {{ step.name | escape }}</h1>
     </header>
 
-    <div class="row" id="instructions">
+    <div class="row">
       <h2>Instructions</h2>
-      <div>
-      {{ step.instructions | escape }}
+      <div id="instructions">
+      {{ step.instructions }}
       </div>
     </div>
 
