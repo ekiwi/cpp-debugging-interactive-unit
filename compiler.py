@@ -5,8 +5,13 @@
 
 import os, subprocess, re, tempfile
 
-def ret_to_dict(ret):
-	return { 'ret': ret.returncode, 'stdout': ret.stdout.decode('utf8'), 'stderr': ret.stderr.decode('utf-8') }
+def filter_output(stream : str, cwd : str) -> str:
+	return stream.replace(cwd+'/', '').replace(cwd, '')
+
+def ret_to_dict(ret, cwd: str) -> dict:
+	stdout = filter_output(ret.stdout.decode('utf8'), cwd=cwd)
+	stderr = filter_output(ret.stderr.decode('utf-8'), cwd=cwd)
+	return { 'ret': ret.returncode, 'stdout': stdout, 'stderr': stderr }
 
 class Compiler:
 	def __init__(self, working_dir):
@@ -70,7 +75,7 @@ class Compiler:
 		r = self._run(compiler, args=args, cwd=cwd)
 		if r.returncode == 0:
 			assert os.path.isfile(os.path.join(cwd, exe))
-		return cwd, ret_to_dict(r)
+		return cwd, ret_to_dict(r, cwd=cwd)
 
 	def run_program(self, cwd, exe):
 		PIPE = subprocess.PIPE
@@ -88,4 +93,4 @@ class Compiler:
 		if cc['ret'] != 0:
 			return {'compile': cc, 'run': {}}
 		ret = self.run_program(cwd=cwd, exe=exe)
-		return {'compile': cc, 'run': ret_to_dict(ret)}
+		return {'compile': cc, 'run': ret_to_dict(ret, cwd=cwd)}
