@@ -84,7 +84,35 @@ def short_demo() -> List[Part]:
 			]
 
 
+
+"""
+Notes
+-----
+
+Bug Classes:
+* Use After Free (Heap) [address]
+* Use After Return (Stack) [address]
+* Buffer Overflow (Heap/Stack) [address]
+
+* Bounds Check for static array size [undefined]
+* Nullpointer Dereference [undefined]
+* Return from non-void function [undefined]
+
+* Uninitialized Pointer [memory]
+
+"""
 def complete_unit() -> List[Part]:
+	intro = Part(1, "Your Compiler as a Bug Finding Tool", "",[
+		IntroStep(1, "Introduction",
+				  "While developing software in C++ you might have struggled with your program crashing unexpectedly." +
+				  "Once that happens it can be hard to understand what exactly causes it to fail." +
+				  "This interactive online tutorial will help you learn about how your compiler can support you in debugging your programs."),
+		DoneStep(2, "Start", "Once you are ready to get started, click 'next'.")
+	])
+
+	bugs = Part(2, "")
+
+
 	return [Part(1, name="Program 1", program=p1, steps=[
 			IntroStep(1, "Intro", "Look at the program. It has a bug. In the following steps we will first form a hypothesis and then try out various debugging techniques in order to find the problem."),
 			QuestionStep(2, "What should the program do?",
