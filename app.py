@@ -93,6 +93,21 @@ int main(int argc, char **argv) {
 }
 """
 
+use_after_return_program = """
+int *ptr;
+void FunctionThatEscapesLocalObject() {
+  int local[100];
+  ptr = &local[0];
+}
+
+int main(int argc, char **argv) {
+  FunctionThatEscapesLocalObject();
+  return ptr[argc];
+}
+"""
+
+
+
 """
 Notes
 -----
